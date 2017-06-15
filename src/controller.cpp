@@ -15,6 +15,7 @@
 // end platform includes
 
 // begin thread includes
+#include "threads/test.h"
 // end thread includes
 
 // begin transport includes
@@ -388,12 +389,13 @@ int main (int argc, char ** argv)
   // end adding custom algorithm factories
 
   // begin adding custom platform factories
+
   // add boat factory
   aliases.clear ();
   aliases.push_back ("boat");
+
   controller.add_platform_factory (aliases,
     new platforms::boatFactory ());
-
   // end adding custom platform factories
   
   // read madara initialization
@@ -452,6 +454,7 @@ int main (int argc, char ** argv)
    **/
 
   // begin thread creation
+  threader.run (1, "test", new threads::test ());
   // end thread creation
   
   /**

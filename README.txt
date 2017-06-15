@@ -2,7 +2,7 @@
 INTRO:
 
   This directory has been created by the gpc.pl script and contains
-  a custom simulation, GAMS controller and platforms.
+  a custom simulation, GAMS controller, platforms and threads.
 
 HOW TO:
 
@@ -13,6 +13,10 @@ HOW TO:
     block the controller. It is in your best interest to poll information from
     the environment and knowledge base, rather than blocking on an operating
     system call.
+
+  EDIT YOUR THREADS:
+  
+    Open test.cpp|h with your favorite programming environment / editor.
 
   COMPILE ON LINUX:
   
