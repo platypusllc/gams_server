@@ -12,7 +12,7 @@
 #include <chrono>
 
 #include <boost/asio.hpp>
-#include <boost/asio/error.hpp>
+#include <boost/system/error_code.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/io_service.hpp>

@@ -28,13 +28,11 @@
 // begin other includes
 #include "boat_containers.h"
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/error.hpp>
+#include <boost/system/error_code.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <memory>
 #include <chrono>
 #include <thread>
-
-namespace asio = boost::asio
 
 // END DO NOT DELETE THIS SECTION
 
@@ -372,12 +370,12 @@ int main (int argc, char ** argv)
   madara::knowledge::KnowledgeBase knowledge;
 
   // create containers
-  containers containers(knowledge, settings.id);
+  Containers containers(knowledge, settings.id);
 
   boost::asio::io_service io;
   std::shared_ptr<boost::asio::serial_port> port = std::make_shared<boost::asio::serial_port>(io);  
   std::string port_name = EBOARD_PORT_NAME;
-  boost::asio::error ec; 
+  boost::system::error_code ec; 
   bool port_ready = false;
   while (!port_ready)
   {
@@ -501,7 +499,7 @@ int main (int argc, char ** argv)
 
 
   // begin thread creation
-  threads::localization * localizationThread = new threads::localization(containers)
+  threads::localization * localizationThread = new threads::localization(containers);
 
   threader.run (1, "localization", localizationThread)
   threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread))
