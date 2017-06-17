@@ -147,7 +147,8 @@ double
 platforms::boat::get_move_speed () const
 {
   // should be in meters/s
-  return 0.0;
+  // not really m/s in this case but roughly indicates speed
+  return containers_.thrustFraction.to_double();
 }
 
 // Instructs the agent to return home. Optional.

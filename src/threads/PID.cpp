@@ -110,7 +110,7 @@ threads::PID::run (void)
         dx_lookahead = lookahead_state.at(0) - x_current;
         dy_lookahead = lookahead_state.at(1) - y_current;
         heading_desired = atan2(dy_lookahead, dx_lookahead);
- //     std::cout<< "Headings " << heading_current << " ,  "<< atan2(dy_current, dx_current) <<std::endl;
+        //std::cout<< "Headings " << heading_current << " ,  "<< atan2(dy_current, dx_current) <<std::endl;
         heading_error = utility::angle_tools::minimum_difference(heading_current - heading_desired); // fed into a 1 DOF PID for heading                     
         containers_.heading_error = heading_error; 
         containers_.heading_ahrs = heading_current; 
