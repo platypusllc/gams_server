@@ -89,10 +89,10 @@ void threads::JSON_write::write(json & json_data)
   raw_data_.clear();
   raw_data_ = json_data.dump();
   strncpy(raw_buffer_, raw_data_.c_str(), raw_data_.size());
-  raw_buffer[raw_data_.size()] = '\n'; // explicitly add a newline character at the end?
+  raw_buffer_[raw_data_.size()] = '\n'; // explicitly add a newline character at the end?
   //printf("JSON write buffer: %s\n", raw_buffer);
   boost::system::error_code ec;
-  port->write_some(boost::asio::buffer(raw_buffer_, raw_data_.size()+1), ec);
+  port_->write_some(boost::asio::buffer(raw_buffer_, raw_data_.size()+1), ec);
   if (!ec) 
   {
       return;
