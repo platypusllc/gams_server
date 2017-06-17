@@ -17,6 +17,7 @@
 // begin thread includes
 #include "threads/localization.h"
 #include "threads/JSON_read.h"
+#include "threads/JSON_write.h"
 // end thread includes
 
 // begin transport includes
@@ -499,19 +500,14 @@ int main (int argc, char ** argv)
    * thread option with the gpc.pl script.
    **/
 
-  printf("madara gams setup done, stating thread setup\n");
+  printf("madara gams setup done, starting thread setup\n");
 
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
-  printf("made localization thread\n");
-
-
-  threader.run (1, "localization", localizationThread);
-
-  printf("started localization thread, starting json reader\n");
-
-  threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
+  threader.run (50.0, "localization", localizationThread);
+  threader.run (0.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
+  threader.run (0.0, "JSON_write", new threads::JSON_write (port, containers));
   // end thread creation
   
   printf("all threads started\n");
