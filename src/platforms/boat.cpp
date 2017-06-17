@@ -85,6 +85,7 @@ int platforms::boat::sense (void)
 int
 platforms::boat::analyze (void)
 {
+  containers_.heartbeat_connectivity = 1;
   return gams::platforms::PLATFORM_OK;
 }
 
@@ -110,7 +111,7 @@ double
 platforms::boat::get_accuracy (void) const
 {
   // will depend on your localization capabilities for robotics
-  return 0.0;
+  return containers_.sufficientProximity.to_double();
 }
 
 // Gets Location of platform, within its parent frame. Optional.
@@ -127,7 +128,7 @@ platforms::boat::get_location () const
 gams::pose::Orientation
 platforms::boat::get_orientation () const
 {
-  gams::pose::Orientation result;
+  gams::pose::Orientation result(0.0, 0.0, containers_.eastingNorthingHeading[2]);
   
   return result;
 }
@@ -159,6 +160,12 @@ platforms::boat::home (void)
    * platform status to determine what to return. For now, we will simply
    * return that we are in the process of moving to the final pose.
    **/
+
+  self_->agent.dest.set(0, self_->agent.dest[0]);
+  self_->agent.dest.set(1, self_->agent.dest[1]);
+  self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
+  self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
+
   return gams::platforms::PLATFORM_IN_PROGRESS;
 }
 
@@ -189,6 +196,27 @@ platforms::boat::move (
    * platform status to determine what to return. For now, we will simply
    * return that we are in the process of moving to the final pose.
    **/
+
+  double lat = location.lat();
+  double lng = location.lng();
+
+  printf("platform.move():  lat = %f, lng = %f\n", lat, lng);
+
+  GeographicLib::GeoCoords coord(lat, lng, containers_.gpsZone.to_integer());
+  double easting = coord.Easting();
+  double northing = coord.Northing();   
+
+  if (easting != self_->agent.dest[0] || northing != self_->agent.dest[1])
+  {
+   // update source to prior destination
+   self_->agent.source.set(0, self_->agent.dest[0]);
+   self_->agent.source.set(1, self_->agent.dest[1]);
+   
+   // new destination
+   self_->agent.dest.set(0, easting);
+   self_->agent.dest.set(1, northing);    
+  }
+
   return gams::platforms::PLATFORM_MOVING;
 }
 
@@ -254,4 +282,10 @@ const gams::pose::ReferenceFrame &
 platforms::boat::get_frame (void) const
 {
   return gps_frame;
+}
+
+// Sets platform containers
+void platforms::boat::set_containers(Containers & containers)
+{
+  containers_ = containers;
 }

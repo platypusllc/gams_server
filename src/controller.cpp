@@ -15,7 +15,8 @@
 // end platform includes
 
 // begin thread includes
-#include "threads/test.h"
+#include "threads/localization.h"
+#include "threads/JSON_read.h"
 // end thread includes
 
 // begin transport includes
@@ -23,6 +24,17 @@
 
 // begin filter includes
 // end filter includes
+
+// begin other includes
+#include "boat_containers.h"
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/asio/serial_port.hpp>
+#include <memory>
+#include <chrono>
+#include <thread>
+
+namespace asio = boost::asio
 
 // END DO NOT DELETE THIS SECTION
 
@@ -358,6 +370,39 @@ int main (int argc, char ** argv)
 
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase knowledge;
+
+  // create containers
+  containers containers(knowledge, settings.id);
+
+  asio::io_service io;
+  std::shared_ptr<asio::serial_port> port = std::make_shared<asio::serial_port>(io);  
+  std::string port_name = EBOARD_PORT_NAME;
+  asio::error ec; 
+  bool port_ready = false;
+  while (!port_ready)
+  {
+    printf("attempting to open eboard port: %s\n", port_name.c_str());
+    port->open(port_name, ec);
+    if (!ec) 
+    {
+      if (port->is_open()) 
+      {
+          printf("eboard port is open\n");
+          port->set_option(asio::serial_port_base::baud_rate(EBOARD_BAUD_RATE));
+          port_ready = true;
+          break;
+      }
+      else 
+      {
+        printf("ERROR: port->is_open() returned false\n");
+      }
+    }
+    else 
+    {
+      printf("WARNING: port->open() failed:  %s\n Do you have the eboard plugged in?\n", ec.message().c_str());
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
   
   // begin on receive filters
   // end on receive filters
@@ -453,8 +498,13 @@ int main (int argc, char ** argv)
    * thread option with the gpc.pl script.
    **/
 
+
+
   // begin thread creation
-  threader.run (1, "test", new threads::test ());
+  threads::localization * localizationThread = new threads::localization(containers)
+
+  threader.run (1, "localization", localizationThread)
+  threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread))
   // end thread creation
   
   /**

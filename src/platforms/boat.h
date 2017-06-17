@@ -2,11 +2,15 @@
 #ifndef   _PLATFORM_BOAT_H_
 #define   _PLATFORM_BOAT_H_
 
+#include <GeographicLib/GeoCoords.hpp>
+
 #include "gams/platforms/BasePlatform.h"
 #include "gams/platforms/PlatformFactory.h"
 #include "madara/threads/Threader.h"
 #include "gams/pose/GPSFrame.h"
 #include "gams/pose/CartesianFrame.h"
+
+#include "../boat_containers.h"
 
 namespace platforms
 {        
@@ -163,6 +167,12 @@ namespace platforms
      * Returns the reference frame for the platform (e.g. GPS or cartesian)
      **/
     virtual const gams::pose::ReferenceFrame & get_frame (void) const;
+
+    /**
+     * Set platform containers.
+     * @param new containers object
+     **/
+    void set_containers (Containers & containers);
     
   private:
     // a threader for managing platform threads
@@ -173,6 +183,9 @@ namespace platforms
     
     // a default Cartesian frame
     static gams::pose::CartesianFrame  cartesian_frame;
+
+    // platform specific containers
+    Containers containers_;
   }; // end boat class
     
 
