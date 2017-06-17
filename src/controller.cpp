@@ -369,6 +369,32 @@ int main (int argc, char ** argv)
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase knowledge;
 
+  // begin on receive filters
+  // end on receive filters
+  
+  // begin on send filters
+  // end on send filters
+  
+  // if you only want to use custom transports, delete following
+  knowledge.attach_transport (host, settings);
+  
+  // begin transport creation 
+  // end transport creation
+  
+  // set this once to allow for debugging controller creation
+  if (gams_debug_level >= 0)
+  {
+    gams::loggers::global_logger->set_level (gams_debug_level);
+  }
+
+  controllers::BaseController controller (knowledge);
+  madara::threads::Threader threader (knowledge);
+
+  // initialize variables and function stubs
+  controller.init_vars (settings.id, num_agents);
+  
+  std::vector <std::string> aliases;
+
   // create containers
   Containers containers(knowledge, settings.id);
 
@@ -404,32 +430,6 @@ int main (int argc, char ** argv)
   }
   
   printf("done setting up serial port\n");
-
-  // begin on receive filters
-  // end on receive filters
-  
-  // begin on send filters
-  // end on send filters
-  
-  // if you only want to use custom transports, delete following
-  knowledge.attach_transport (host, settings);
-  
-  // begin transport creation 
-  // end transport creation
-  
-  // set this once to allow for debugging controller creation
-  if (gams_debug_level >= 0)
-  {
-    gams::loggers::global_logger->set_level (gams_debug_level);
-  }
-
-  controllers::BaseController controller (knowledge);
-  madara::threads::Threader threader (knowledge);
-
-  // initialize variables and function stubs
-  controller.init_vars (settings.id, num_agents);
-  
-  std::vector <std::string> aliases;
   
   // begin adding custom algorithm factories
   // end adding custom algorithm factories
