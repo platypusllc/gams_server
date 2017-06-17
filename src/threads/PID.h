@@ -15,7 +15,7 @@
 #include "../boat_containers.h"
 #include "../utility.h"
 
-typedef std::chrono::time_point<std::chrono::high_resolution_clock> time_t;
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> precise_time_t;
 
 namespace threads
 {
@@ -53,8 +53,8 @@ namespace threads
     Containers containers_;
     
     // time variables
-    time_t currentTime_;
-    time_t prevTime_;
+    precise_time_t currentTime_;
+    precise_time_t prevTime_;
     double dt_;
 
     // error terms
@@ -68,7 +68,7 @@ namespace threads
     /**
       * Computes the control signal from the current error using PID
       **/
-    void compute_signal (double error);
+    double compute_signal (double error);
 
     /**
       * Clears the integral of the error

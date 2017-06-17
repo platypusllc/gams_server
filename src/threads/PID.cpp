@@ -11,9 +11,9 @@ threads::PID::PID (Containers & containers)
   currentTime_ = utility::time_tools::now();
   prevTime_ = currentTime_;
 
-  kP_ = containers_.LOS_heading_PID[0].to_double();
-  kI_ = containers_.LOS_heading_PID[1].to_double();
-  kD_ = containers_.LOS_heading_PID[2].to_double();
+  kP_ = containers_.LOS_heading_PID[0];
+  kI_ = containers_.LOS_heading_PID[1];
+  kD_ = containers_.LOS_heading_PID[2];
 
 }
 
@@ -29,7 +29,7 @@ threads::PID::~PID ()
  * the function.
  **/
 void
-threads::PID::PID (knowledge::KnowledgeBase & knowledge)
+threads::PID::init (knowledge::KnowledgeBase & knowledge)
 {
   // point our data plane to the knowledge base initializing the thread
   data_ = knowledge;
@@ -195,7 +195,7 @@ threads::PID::run (void)
 }
 
 
-void threads::PID::compute_signal(double error)
+double threads::PID::compute_signal(double error)
 {
   dt_ = utility::time_tools::dt(currentTime_, prevTime_);
 
@@ -240,7 +240,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   {
     motor_overage1 = copysign(std::abs(m1) - 1.0, m1);
   }
-  double max_overage = std::max(motor_overage0, motor_overage1)
+  double max_overage = std::max(motor_overage0, motor_overage1);
 
   m0 -= max_overage;
   m1 -= max_overage;
