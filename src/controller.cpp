@@ -388,6 +388,7 @@ int main (int argc, char ** argv)
           printf("eboard port is open\n");
           port->set_option(boost::asio::serial_port_base::baud_rate(EBOARD_BAUD_RATE));
           port_ready = true;
+          printf("port is ready\n");
           break;
       }
       else 
@@ -402,6 +403,8 @@ int main (int argc, char ** argv)
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   
+  printf("done setting up serial port\n");
+
   // begin on receive filters
   // end on receive filters
   
@@ -496,15 +499,23 @@ int main (int argc, char ** argv)
    * thread option with the gpc.pl script.
    **/
 
-
+  printf("madara gams setup done, stating thread setup\n");
 
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
+  printf("made localization thread\n");
+
+
   threader.run (1, "localization", localizationThread);
+
+  printf("started localization thread, starting json reader\n");
+
   threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
   // end thread creation
   
+  printf("all threads started\n");
+
   /**
    * END WARNING
    **/
