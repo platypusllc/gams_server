@@ -5,8 +5,8 @@
 namespace knowledge = madara::knowledge;
 
 // constructor
-threads::JSON_read::JSON_read (std::shared_ptr<boost::asio::serial_port_> port_, Containers & containers, threads::localization * localization_ref)
-: threads::io_thread(port_, containers_), end_of_line_char__(end_of_line_char_), rejected_line_count__(0)
+threads::JSON_read::JSON_read (std::shared_ptr<boost::asio::serial_port> port, Containers & containers, threads::localization * localization_ref)
+: threads::io_thread(port, containers_), end_of_line_char_(END_OF_LINE_CHAR), rejected_line_count_(0)
 {
   new_sensor_callback = std::bind(& threads::localization::new_sensor_update, localization_ref, std::placeholders::_1);
 }
@@ -36,7 +36,7 @@ threads::JSON_read::run (void)
     "threads::JSON_read::run:" 
     " executing\n");
 
-  boost::asio::error_code ec;
+  boost::system::error_code ec;
   int bytes_read = port_->read_some(boost::asio::buffer(raw_buffer_, BUFFER_SIZE), ec);
   if (!ec && bytes_read > 0) 
   {
