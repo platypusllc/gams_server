@@ -6,7 +6,7 @@ namespace knowledge = madara::knowledge;
 
 // constructor
 threads::JSON_read::JSON_read (std::shared_ptr<boost::asio::serial_port> port, Containers & containers, threads::localization * localization_ref)
-: threads::io_thread(port, containers_), end_of_line_char_(END_OF_LINE_CHAR), rejected_line_count_(0)
+: threads::io_thread(port, containers), end_of_line_char_(END_OF_LINE_CHAR), rejected_line_count_(0)
 {
   new_sensor_callback = std::bind(& threads::localization::new_sensor_update, localization_ref, std::placeholders::_1);
 }
