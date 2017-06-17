@@ -1,0 +1,2 @@
+agent.{.id}.madara_debug_level = 1;
+agent.{.id}.gams_debug_level = 1;

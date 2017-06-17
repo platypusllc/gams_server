@@ -50,7 +50,7 @@ threads::JSON_read::run (void)
           json j;
           try
           {
-            prtinf("serial input: %s \n", raw_data_)
+            printf("serial input: %s \n", raw_data_.c_str());
             j = json::parse(raw_data_);
             std::string primary_key(j.begin().key().data());
             
