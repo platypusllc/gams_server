@@ -18,6 +18,7 @@
 #include "threads/localization.h"
 #include "threads/JSON_read.h"
 #include "threads/JSON_write.h"
+#include "threads/PID.h"
 // end thread includes
 
 // begin transport includes
@@ -508,6 +509,7 @@ int main (int argc, char ** argv)
   threader.run (50.0, "localization", localizationThread);
   threader.run (0.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
   threader.run (0.0, "JSON_write", new threads::JSON_write (port, containers));
+  threader.run (20.0, "PID", new threads::PID(containers));
   // end thread creation
   
   printf("all threads started\n");
