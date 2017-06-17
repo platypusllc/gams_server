@@ -28,8 +28,8 @@
 #define END_OF_LINE_CHAR '\n'
 #define INITIAL_REJECT_COUNT 10 // number of lines to reject initially to avoid junk
 
-using namespace asio = boost::asio
-using namespace json = nlohmann::json
+using asio = boost::asio;
+using json = nlohmann::json;
 
 namespace threads
 {
