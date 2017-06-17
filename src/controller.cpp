@@ -386,7 +386,7 @@ int main (int argc, char ** argv)
       if (port->is_open()) 
       {
           printf("eboard port is open\n");
-          port->set_option(asio::serial_port_base::baud_rate(EBOARD_BAUD_RATE));
+          port->set_option(boost::asio::serial_port_base::baud_rate(EBOARD_BAUD_RATE));
           port_ready = true;
           break;
       }
@@ -501,8 +501,8 @@ int main (int argc, char ** argv)
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
-  threader.run (1, "localization", localizationThread)
-  threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread))
+  threader.run (1, "localization", localizationThread);
+  threader.run (1, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
   // end thread creation
   
   /**
