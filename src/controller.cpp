@@ -374,10 +374,10 @@ int main (int argc, char ** argv)
   // create containers
   containers containers(knowledge, settings.id);
 
-  asio::io_service io;
-  std::shared_ptr<asio::serial_port> port = std::make_shared<asio::serial_port>(io);  
+  boost::asio::io_service io;
+  std::shared_ptr<boost::asio::serial_port> port = std::make_shared<boost::asio::serial_port>(io);  
   std::string port_name = EBOARD_PORT_NAME;
-  asio::error ec; 
+  boost::asio::error ec; 
   bool port_ready = false;
   while (!port_ready)
   {

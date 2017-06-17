@@ -38,7 +38,7 @@ namespace threads
     /**
      * Default constructor
      **/
-    JSON_read (std::shared_ptr<asio::serial_port> port, Containers & containers, 
+    JSON_read (std::shared_ptr<boost::asio::serial_port> port, Containers & containers, 
                 threads::localization * localization_ref);
     
     /**

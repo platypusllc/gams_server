@@ -28,7 +28,6 @@
 #define END_OF_LINE_CHAR '\n'
 #define INITIAL_REJECT_COUNT 10 // number of lines to reject initially to avoid junk
 
-using asio = boost::asio;
 using json = nlohmann::json;
 
 namespace threads
@@ -42,7 +41,7 @@ namespace threads
     /**
      * Default constructor
      **/
-    io_thread (std::shared_ptr<asio::serial_port> port, Containers & containers);
+    io_thread (std::shared_ptr<boost::asio::serial_port> port, Containers & containers);
     
     /**
      * Destructor
@@ -63,7 +62,7 @@ namespace threads
   protected:
     /// data plane if we want to access the knowledge base
     madara::knowledge::KnowledgeBase data_;
-    std::shared_ptr<asio::serial_port> port_;
+    std::shared_ptr<boost::asio::serial_port> port_;
     Containers containers_;
     char raw_buffer_[BUFFER_SIZE];
     std::string raw_data_;

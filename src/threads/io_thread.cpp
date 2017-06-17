@@ -3,10 +3,9 @@
 #include "io_thread.h"
 
 namespace knowledge = madara::knowledge;
-namespace asio = boost::asio
 
 // constructor
-threads::io_thread::io_thread (std::shared_ptr<asio::serial_port> port, Containers & containers)
+threads::io_thread::io_thread (std::shared_ptr<boost::asio::serial_port> port, Containers & containers)
 : port_(port), containers_(containers)
 {
 }
