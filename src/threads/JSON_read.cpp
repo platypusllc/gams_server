@@ -50,7 +50,7 @@ threads::JSON_read::run (void)
           json j;
           try
           {
-            printf("serial input: %s \n", raw_data_.c_str());
+            //printf("serial input: %s \n", raw_data_.c_str());
             j = json::parse(raw_data_);
             std::string primary_key(j.begin().key().data());
             
@@ -70,7 +70,7 @@ threads::JSON_read::run (void)
                 containers_.battery_voltage = battery_voltage;
               }
              
-              if (type.compare("AdafruitGPS") == 0)              
+              if (type.compare("gps") == 0)              
               {
                 std::string nmea = j.front().find("data").value();
                 utility::string_tools::remove_quotes(nmea);
@@ -139,15 +139,17 @@ threads::JSON_read::run (void)
               }
               else if (type.compare("imu") == 0)
               {
+                printf("got imu data\n");
                 std::string data = j.front().find("data").value();
                 std::vector<std::string> imu_data;
-                imu_data = utility::string_tools::split(data, ",");
+                imu_data = utility::string_tools::split(data, ',');
 
                 try{
                   double yaw = std::stod(imu_data[0]);
                   std::vector<double> compass = {yaw};
                   Eigen::MatrixXd covariance(1, 1);
                   covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
+                  printf("yaw: %d\n", yaw);
                   Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
                   new_sensor_callback(datum);
                 }catch (const std::invalid_argument&) {
