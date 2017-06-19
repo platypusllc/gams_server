@@ -167,7 +167,6 @@ void threads::localization::updateKB()
 
 void threads::localization::update()
 {
-  printf("localization update() called\n"); 
   bool new_datum_available = false;
   ///// BEGIN LOCKED SECTION
   {
