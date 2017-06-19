@@ -149,7 +149,7 @@ threads::JSON_read::run (void)
                   std::vector<double> compass = {yaw};
                   Eigen::MatrixXd covariance(1, 1);
                   covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
-                  printf("yaw: %d\n", yaw);
+                  printf("yaw: %f\n", yaw);
                   Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
                   new_sensor_callback(datum);
                 }catch (const std::invalid_argument&) {

@@ -68,7 +68,7 @@ threads::localization::run (void)
 
 void threads::localization::new_sensor_update(Datum datum)
 {
-  //printf("Datum unique_id_count = %d    @ %s\n", Datum::unique_id_count, datum.human_readable_time().c_str());
+  printf("Datum unique_id_count = %d    @ %s\n", Datum::unique_id_count, datum.human_readable_time().c_str());
 
   // Deal with initial GPS and compass values
   if (containers_.localized == 0)
@@ -167,7 +167,7 @@ void threads::localization::updateKB()
 
 void threads::localization::update()
 {
-  
+  printf("localization update() called\n"); 
   bool new_datum_available = false;
   ///// BEGIN LOCKED SECTION
   {
