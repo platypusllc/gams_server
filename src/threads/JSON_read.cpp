@@ -162,7 +162,7 @@ threads::JSON_read::run (void)
           catch (std::exception e) 
           {
             printf("ERROR: json parse failed: %s\n", e.what());
-            printf("Serial Input: %s\n", raw_data_);
+            printf("Serial Input: %s\n", raw_data_.c_str());
           }
         }
         else
