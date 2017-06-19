@@ -140,7 +140,7 @@ threads::JSON_read::run (void)
               else if (type.compare("imu") == 0)
               {
                 std::string data = j.front().find("data").value();
-                std::vector<double> imu_data;
+                std::vector<std:string> imu_data;
                 imu_data = utility::string_tools::split(data, ',');
 
                 try{
