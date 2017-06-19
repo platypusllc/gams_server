@@ -139,17 +139,15 @@ threads::JSON_read::run (void)
               }
               else if (type.compare("imu") == 0)
               {
-                printf("got imu data\n");
                 std::string data = j.front().find("data").value();
-                std::vector<std::string> imu_data;
                 imu_data = utility::string_tools::split(data, ',');
 
                 try{
                   double yaw = std::stod(imu_data[0]);
+                  yaw *= M_PI / 180.0;
                   std::vector<double> compass = {yaw};
                   Eigen::MatrixXd covariance(1, 1);
                   covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
-                  printf("yaw: %f\n", yaw);
                   Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
                   new_sensor_callback(datum);
                 }catch (const std::invalid_argument&) {
