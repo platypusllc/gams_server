@@ -55,14 +55,15 @@ threads::JSON_write::run (void)
   //Send arming signal to hardware
   if ( containers_.arm_signal == 1 )
   {
+    printf("Arming signal sent\n");
     json arm_json;
-    arm_json["o"] = { { "a", NULL } };
+    arm_json["e"] = { { "cmd", "arm" } };
     containers_.arm_signal = 0;
     write( arm_json );
   }
   
   //Check for error corde and inform eboard.
-  if ( containers_.error_signal != 0 )
+  /*if ( containers_.error_signal != 0 )
   {
     json error_json;
     if ( containers_.error_signal == 1)
@@ -81,7 +82,7 @@ threads::JSON_write::run (void)
       write(error_json); 
     }
 
-  }
+  }*/
 }
 
 void threads::JSON_write::write(json & json_data)
