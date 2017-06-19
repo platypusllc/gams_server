@@ -136,7 +136,26 @@ threads::JSON_read::run (void)
                 } catch (const std::out_of_range&) {
                   printf("Argument is out of range for a double\n");
                 }
-              }          
+              }
+              else if (type.compare("imu") == 0)
+              {
+                std::string data = j.front().find("data").value();
+                std::vector<std::string> imu_data;
+                imu_data = utility::string_tools::split(data, ",");
+
+                try{
+                  double yaw = std::stod(imu_data[0]);
+                  std::vector<double> compass = {yaw};
+                  Eigen::MatrixXd covariance(1, 1);
+                  covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
+                  Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
+                  new_sensor_callback(datum);
+                }catch (const std::invalid_argument&) {
+                  printf("Argument is invalid\n");
+                } catch (const std::out_of_range&) {
+                  printf("Argument is out of range for a double\n");
+                }
+              }
             }
           }
           catch (std::exception e) 
