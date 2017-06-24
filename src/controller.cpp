@@ -57,7 +57,7 @@ std::vector <std::string> accents;
 
 // controller variables
 double period (1.0);
-double loop_time (15.0);
+double loop_time (600.0);
 
 // madara commands from a file
 std::string madara_commands = "";

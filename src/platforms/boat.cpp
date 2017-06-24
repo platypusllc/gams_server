@@ -47,7 +47,7 @@ platforms::boat::boat (
       (*sensors)["coverage"] = coverage_sensor;
     }
     (*sensors_)["coverage"] = (*sensors)["coverage"];
-    status_.init_vars (*knowledge, get_id ());
+    status_.init_vars (*knowledge, "");
     
     // create threads
     // end create threads
@@ -86,6 +86,7 @@ int
 platforms::boat::analyze (void)
 {
   containers_.heartbeat_connectivity = 1;
+  knowledge_->send_modifieds();
   return gams::platforms::PLATFORM_OK;
 }
 

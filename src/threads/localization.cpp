@@ -158,6 +158,7 @@ void threads::localization::updateKB()
   location.at(0) = coord.Latitude();
   location.at(1) = coord.Longitude();
   location.at(2) = 0.0;
+  printf("%f,%f\n", coord.Latitude(), coord.Longitude());
   containers_.location.set(location);
   for (int i = 0; i < state.rows(); i++) 
   {
