@@ -146,7 +146,7 @@ threads::JSON_read::run (void)
 
                 try{
                   double raw_yaw = std::stod(imu_data[0]);
-                  raw_yaw += 90.0; // Offset angle to account for mounting orientation
+                  raw_yaw += 180.0; // Offset angle to account for mounting orientation
                   if (raw_yaw > 360.0)
                   {
                     raw_yaw -= 360.0;
