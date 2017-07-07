@@ -145,6 +145,11 @@ threads::JSON_read::run (void)
 
                 try{
                   double raw_yaw = std::stod(imu_data[0]);
+                  raw_yaw -= 90.0; // Offset angle to account for mounting orientation
+                  if (raw_yaw < 0.0)
+                  {
+                    raw_yaw += 360.0;
+                  }
                   double yaw = 180.0 - raw_yaw; // Flip direction and map to -180 to 180
                   yaw *= M_PI / 180.0; // Convert to Radians
 
