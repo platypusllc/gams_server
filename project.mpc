@@ -19,21 +19,13 @@ project (custom_controller) : using_gams, using_madara, using_ace {
 
   Header_Files {
     src/
-    src/algorithms
-    src/filters
     src/platforms
-    src/platforms/threads
     src/threads
-    src/transports
   }
 
   Source_Files {
-    src
-    src/algorithms
-    src/filters
+    src/
     src/platforms
-    src/platforms/threads
     src/threads
-    src/transports
   }
 }
