@@ -74,24 +74,28 @@ threads::PID::run (void)
       //printf("x_current = %f, y_current = %f, x_dest = %f, y_dest = %f\n", x_current, y_current, x_dest, y_dest);
       //printf("%f     %f\n", x_current, y_current);
       
+      // Compute current distance to destination
       containers_.dist_to_dest = sqrt(pow(x_dest - x_current, 2.) + pow(y_dest - y_current, 2.));
+      
+      // If you are not yet at the destination (within the suffcient proximity)
       if (containers_.dist_to_dest.to_double() > containers_.sufficientProximity.to_double())
       {
-        dx_full = x_dest - x_source;
-        dx_current = x_current - x_source;
-        dy_full = y_dest - y_source;
-        dy_current = y_current - y_source;
-        L_full = sqrt(pow(dx_full, 2.) + pow(dy_full, 2.));
-        L_current = sqrt(pow(dx_current, 2.) + pow(dy_current, 2.));      
+        dx_full = x_dest - x_source; // x distance from starting location to destination
+        dx_current = x_current - x_source; // x distance from current boat position to destination
+        dy_full = y_dest - y_source; // y distance from starting location to destination
+        dy_current = y_current - y_source; // y distance from current boat position to destination
+        L_full = sqrt(pow(dx_full, 2.) + pow(dy_full, 2.)); // length of line between starting location and destination
+        L_current = sqrt(pow(dx_current, 2.) + pow(dy_current, 2.)); // length of line between current boat position and destination
         
         //printf("dx_current = %f   dy_current = %f   dx_full = %f   dy_full = %f\n", dx_current, dy_current, dx_full, dy_full);
         //printf("L_full = %f   L_current = %f\n", L_full, L_current);
         
-        th_full = atan2(dy_full, dx_full);
-        th_current = atan2(dy_current, dx_current);
+        th_full = atan2(dy_full, dx_full); // angle of desired line of travel
+        th_current = atan2(dy_current, dx_current); // angle of line from boat to destination
         
         //printf("th_full = %f   heading_current = %f\n", th_full, heading_current);
         
+        // Project boat position to desired line of travel, compute point along line to travel to
         dth = std::abs(utility::angle_tools::minimum_difference(th_full - th_current));
         projected_length = L_current*cos(dth);
         distance_from_ideal_line = L_current*sin(dth);
@@ -127,7 +131,7 @@ threads::PID::run (void)
         
         // potentially reduce thrust signal due to too much heading error
         double base_surge_effort_fraction = containers_.LOS_surge_effort_fraction.to_double();
-        double surge_effort_fraction_coefficient = 1.0; // [0, 1], reduces thrust
+        double surge_effort_fraction_coefficient = 0.2; // [0, 1], reduces thrust
         double angle_from_projected_to_boat = atan2(projected_state.at(1) - y_current, projected_state.at(0) - x_current);
         double cross_product = cos(th_full)*sin(angle_from_projected_to_boat) - cos(angle_from_projected_to_boat)*sin(th_full);
         
