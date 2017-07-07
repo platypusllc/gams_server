@@ -86,7 +86,6 @@ int
 platforms::boat::analyze (void)
 {
   containers_.heartbeat_connectivity = 1;
-  knowledge_->send_modifieds();
   return gams::platforms::PLATFORM_OK;
 }
 

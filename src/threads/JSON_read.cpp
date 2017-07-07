@@ -144,8 +144,10 @@ threads::JSON_read::run (void)
                 imu_data = utility::string_tools::split(data, ',');
 
                 try{
-                  double yaw = std::stod(imu_data[0]);
-                  yaw *= M_PI / 180.0;
+                  double raw_yaw = std::stod(imu_data[0]);
+                  double yaw = 180.0 - raw_yaw; // Flip direction and map to -180 to 180
+                  yaw *= M_PI / 180.0; // Convert to Radians
+
                   std::vector<double> compass = {yaw};
                   Eigen::MatrixXd covariance(1, 1);
                   covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
