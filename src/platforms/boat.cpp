@@ -86,6 +86,7 @@ int
 platforms::boat::analyze (void)
 {
   containers_.heartbeat_connectivity = 1;
+  printf("setting connectivity heartbeat\n");
   return gams::platforms::PLATFORM_OK;
 }
 
