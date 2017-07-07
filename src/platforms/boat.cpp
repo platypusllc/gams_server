@@ -169,8 +169,8 @@ platforms::boat::home (void)
   self_->agent.dest.set(1, self_->agent.dest[1]);
   */
 
-  self_->agent.dest.set(0, self_.agent.home[0]);
-  self_->agent.dest.set(1, self._agent.home[1]);
+  self_->agent.dest.set(0, self_->agent.home[0]);
+  self_->agent.dest.set(1, self_->agent.home[1]);
 
   self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
   self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
@@ -216,7 +216,10 @@ platforms::boat::move (
   double easting = coord.Easting();
   double northing = coord.Northing();   
 
-  if (easting != self_->agent.dest[0] || northing != self_->agent.dest[1])
+  int result = gams::platforms::PLATFORM_MOVING;
+
+  // If given a new destination, reset dest and source
+  if (std::abs(easting - self_->agent.dest[0]) > 0.0001 || std::abs(northing - self_->agent.dest[1]) > 0.0001)
   {
     /*
     // update source to prior destination - Should this be set to current location?
@@ -230,10 +233,16 @@ platforms::boat::move (
 
     // new destination
     self_->agent.dest.set(0, easting);
-    self_->agent.dest.set(1, northing);    
-  }
+    self_->agent.dest.set(1, northing);
 
-  return gams::platforms::PLATFORM_MOVING;
+    // Update dist to destination
+    
+    //containers_.dist_to_dest = sqrt(pow(self_-
+
+  }
+  
+
+  return result;
 }
 
 
