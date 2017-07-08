@@ -453,7 +453,7 @@ int main (int argc, char ** argv)
     knowledge.evaluate (madara_commands,
       madara::knowledge::EvalSettings(false, true));
   }
-  
+
   // set debug levels if they have been set through command line
   if (madara_debug_level >= 0)
   {
@@ -461,7 +461,9 @@ int main (int argc, char ** argv)
     temp_buffer << "agent." << settings.id << ".madara_debug_level = ";
     temp_buffer << madara_debug_level;
 
+    madara::logger::global_logger->clear();
     madara::logger::global_logger->set_level (madara_debug_level);
+    madara::logger::global_logger->set_timestamp_format();
     madara::logger::global_logger->add_file ("madara_log.txt");
   
     // modify the debug level being used but don't send out to others
@@ -475,7 +477,9 @@ int main (int argc, char ** argv)
     temp_buffer << "agent." << settings.id << ".gams_debug_level = ";
     temp_buffer << gams_debug_level;
 
+    gams::loggers::global_logger->clear();
     gams::loggers::global_logger->set_level (gams_debug_level);
+    gams::loggers::global_logger->set_timestamp_format();
     gams::loggers::global_logger->add_file ("gams_log.txt");
 
     // modify the debug level being used but don't send out to others
