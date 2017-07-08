@@ -26,8 +26,8 @@ if [ -e "${PIDFILE}" ] && (ps -u $(whoami) -opid= |
 fi
 
 echo "Restarting" >> $HOME/tmp/boat_controller.log 
-$CMD >> $HOME/tmp/boat_controller.log &
-#$CMD
+#$CMD >> $HOME/tmp/boat_controller.log &
+$CMD
 
 echo $! > "${PIDFILE}"
 chmod 644 "${PIDFILE}"
