@@ -54,7 +54,7 @@ Containers::Containers(madara::knowledge::KnowledgeBase &kb_, int id_)
     LOS_surge_effort_fraction = 0.5;
     
     LOS_heading_PID.set_name(prefix + "LOS_heading_PID", kb);
-    std::vector<double> LOS_heading_PID_start = {0.5, 0.0, 0.25};
+    std::vector<double> LOS_heading_PID_start = {-0.5, 0.0, 0.25};
     LOS_heading_PID.set(LOS_heading_PID_start);
 
     heading_error.set_name(prefix + "headingError", kb);
