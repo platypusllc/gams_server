@@ -41,6 +41,7 @@ Containers::Containers(madara::knowledge::KnowledgeBase &kb_, int id_)
     dist_to_dest = 0.0;
     
     gpsZone.set_name(prefix + "gps_zone", kb);
+    gpsZone = 29;
 
     northernHemisphere.set_name(prefix + "northern_hemisphere", kb);
     
