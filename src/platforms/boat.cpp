@@ -85,10 +85,10 @@ int platforms::boat::sense (void)
 int
 platforms::boat::analyze (void)
 {
-  printf("Current heartbeat value: %d\n", containers_.heartbeat_connectivity);
+  printf("Current heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
   containers_.heartbeat_connectivity = 1;
   printf("setting connectivity heartbeat\n");
-  printf("New heartbeat value: %d\n", containers_.heartbeat_connectivity);
+  printf("New heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
   return gams::platforms::PLATFORM_OK;
 }
 
