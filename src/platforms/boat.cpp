@@ -119,7 +119,7 @@ platforms::boat::get_accuracy (void) const
 gams::pose::Position
 platforms::boat::get_location () const
 {
-  gams::pose::Position result;
+  gams::pose::Position result(get_frame(), containers_.location);
   
   return result;
 }
@@ -129,7 +129,7 @@ platforms::boat::get_location () const
 gams::pose::Orientation
 platforms::boat::get_orientation () const
 {
-  gams::pose::Orientation result(0.0, 0.0, containers_.eastingNorthingHeading[2]);
+  gams::pose::Orientation result(get_frame(), 0.0, 0.0, containers_.eastingNorthingHeading[2]);
   
   return result;
 }
@@ -236,11 +236,13 @@ platforms::boat::move (
     self_->agent.dest.set(1, northing);
 
     // Update dist to destination
-    
-    //containers_.dist_to_dest = sqrt(pow(self_-
-
+    containers_.dist_to_dest = get_location().distance_to(location);
   }
   
+  if (containers_.dist_to_dest <= epsilon)
+  {
+    result = gams::platforms::PLATFORM_ARRIVED;
+  }
 
   return result;
 }
@@ -248,7 +250,7 @@ platforms::boat::move (
 
 // Rotates the platform to match a given angle. Optional.
 int
-platforms::boat::rotate (
+platforms::boat::orient (
   const gams::pose::Orientation & target,
   double epsilon)
 {
@@ -273,7 +275,9 @@ platforms::boat::pose (const gams::pose::Pose & target,
    * platform status to determine what to return. For now, we will simply
    * return that we are in the process of moving to the final pose.
    **/
-  return gams::platforms::PLATFORM_MOVING;
+
+
+  return move(target, loc_epsilon);
 }
 
 // Pauses movement, keeps source and dest at current values. Optional.

@@ -117,7 +117,7 @@ namespace platforms
      * @param   epsilon   approximation value
      * @return the status of the rotate, @see PlatformReturnValues
      **/
-    virtual int rotate (const gams::pose::Orientation & target,
+    virtual int orient (const gams::pose::Orientation & target,
       double epsilon = M_PI/16);
 
     /**

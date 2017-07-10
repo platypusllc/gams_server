@@ -78,7 +78,8 @@ threads::PID::run (void)
       
       // Compute current distance to destination
       containers_.dist_to_dest = sqrt(pow(x_dest - x_current, 2.) + pow(y_dest - y_current, 2.));
-      
+      printf("Distance to destination: %f\n", containers_.dist_to_dest.to_double());
+
       // If you are not yet at the destination (within the suffcient proximity)
       if (containers_.dist_to_dest.to_double() > containers_.sufficientProximity.to_double())
       {
@@ -249,7 +250,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   m0 = effort - signal;
   m1 = effort + signal;
   
-  printf("Design: motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  printf("Motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   
   if (std::abs(m0) > 1.0)
   {
@@ -274,7 +275,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   m0 -= motor_overage0;
   m1 -= motor_overage1;
   
-  printf("Design: motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  printf("Motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   //printf("Design: equivalent effort fractions: thrust = %f   heading = %f\n", corrected_thrust_fraction, heading_fraction);
   
   std::pair<double, double> result = std::make_pair(m0, m1);

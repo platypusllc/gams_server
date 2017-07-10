@@ -148,11 +148,14 @@ void threads::localization::updateKB()
   // update the knowledge base. Make sure to use containers_ so that these updates are not sent out constantly
   eastingNorthingHeading.at(0) = state(0, 0) + home_x;
   eastingNorthingHeading.at(1) = state(1, 0) + home_y;
-  //eastingNorthingHeading.at(2) = state(2, 0);
+
 
   // sets heading to last value received from sensors, bypassing the KF!!!
+  //eastingNorthingHeading.at(2) = state(2, 0);
   eastingNorthingHeading.at(2) = heading;
+  
   //printf("heading = %f\n", state(2,0)*180.0/M_PI);
+  
   containers_.eastingNorthingHeading.set(eastingNorthingHeading); // update the knowledge base
   coord.Reset(containers_.gpsZone.to_integer(), containers_.northernHemisphere.to_integer(), eastingNorthingHeading.at(0), eastingNorthingHeading.at(1));        
   location.at(0) = coord.Latitude();
