@@ -211,7 +211,7 @@ platforms::boat::move (
   double lat = location.lat();
   double lng = location.lng();
 
-  printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %f\n", lat, lng, containers_.gpsZone.to_integer());
+  printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %d\n", lat, lng, containers_.gpsZone.to_integer());
 
   // Convert target lat, long into utm coordinates
   GeographicLib::GeoCoords coord(lat, lng, containers_.gpsZone.to_integer());
