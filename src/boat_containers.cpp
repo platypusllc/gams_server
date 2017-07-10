@@ -113,7 +113,7 @@ Containers::Containers(madara::knowledge::KnowledgeBase &kb_, int id_)
 
     prefix_.str(std::string()); // clear the string stream, step 1
     prefix_.clear(); // step 2
-    platform_status.init_vars(kb, "");
+    platform_status.init_vars(kb, "boat");
     platform_status.movement_available = 1;
 }
 

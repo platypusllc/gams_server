@@ -58,6 +58,7 @@ std::vector <std::string> accents;
 // controller variables
 double period (1.0);
 double loop_time (600.0);
+//double loop_time(-1.0);
 
 // madara commands from a file
 std::string madara_commands = "";
@@ -506,10 +507,10 @@ int main (int argc, char ** argv)
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
-  threader.run (50.0, "localization", localizationThread);
-  threader.run (100.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
-  threader.run (100.0, "JSON_write", new threads::JSON_write (port, containers));
-  threader.run (20.0, "PID", new threads::PID(containers));
+  threader.run (35.0, "localization", localizationThread);
+  threader.run (35.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
+  threader.run (35.0, "JSON_write", new threads::JSON_write (port, containers));
+  threader.run (15.0, "PID", new threads::PID(containers));
   // end thread creation
   
   printf("all threads started\n");
