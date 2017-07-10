@@ -198,7 +198,7 @@ threads::PID::run (void)
     }
     else
     {
-      printf("Autonomy disabled, not localized, or unknown teleop state\n");
+      printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled, containers_.localized, containers_.teleop_status);
       containers_.motor_signals.set(0, 0.0);
       containers_.motor_signals.set(1, 0.0);
 

@@ -93,6 +93,7 @@ threads::JSON_read::run (void)
                   GeographicLib::GeoCoords coord(lat, lon);
                   std::vector<double> gps_utm = {coord.Easting(), coord.Northing()};
                   containers_.gpsZone = coord.Zone();
+                  printf("utm coordinates from gps chip: %f, %f, %d\n", coord.Easting(), coord.Northing(), coord.Zone());
                   if (coord.Northp())
                   {
                     containers_.northernHemisphere = 1;
