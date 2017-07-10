@@ -462,7 +462,8 @@ int main (int argc, char ** argv)
     temp_buffer << madara_debug_level;
 
     madara::logger::global_logger->set_level (madara_debug_level);
-
+    madara::logger::global_logger->add_file ("madara_log.txt");
+  
     // modify the debug level being used but don't send out to others
     knowledge.evaluate (temp_buffer.str (),
       madara::knowledge::EvalSettings (true, true));
@@ -475,6 +476,7 @@ int main (int argc, char ** argv)
     temp_buffer << gams_debug_level;
 
     gams::loggers::global_logger->set_level (gams_debug_level);
+    gams::loggers::global_logger->add_file ("gams_log.txt");
 
     // modify the debug level being used but don't send out to others
     knowledge.evaluate (temp_buffer.str (),
@@ -487,6 +489,15 @@ int main (int argc, char ** argv)
     platform = knowledge.get (KNOWLEDGE_BASE_PLATFORM_KEY).to_string ();
   controller.init_platform (platform);
   controller.init_algorithm (algorithm);
+
+  // check if it is a boat platform via a dynamic_cast not returning null, and if it is a valid pointer, set the containers
+  gams::platforms::BasePlatform * platform_ptr = controller.get_platform();  
+  platforms::boat * boat_platform_ptr;
+  boat_platform_ptr = dynamic_cast< platforms::boat * > (platform_ptr);
+  if (boat_platform_ptr != nullptr)
+  {
+    boat_platform_ptr->set_containers(containers);
+  }
 
   // add any accents
   for (unsigned int i = 0; i < accents.size (); ++i)
