@@ -11,10 +11,7 @@ threads::PID::PID (Containers & containers)
   currentTime_ = utility::time_tools::now();
   prevTime_ = currentTime_;
 
-  kP_ = containers_.LOS_heading_PID[0];
-  kI_ = containers_.LOS_heading_PID[1];
-  kD_ = containers_.LOS_heading_PID[2];
-
+  update_coefficients();
 }
 
 // destructor
@@ -56,7 +53,9 @@ threads::PID::run (void)
     " executing\n");
 
   if (containers_.autonomy_enabled == 1 && containers_.teleop_status != 1 && containers_.localized == 1)
-    {        
+    {
+      printf("Autonomy enabled and boat is localized, moving to desired destination\n");
+
       // goal state - determined by containers for agent.id.source, agent.id.destination, and agent.id.desired_velocity
       double x_dest, x_source, x_current, y_dest, y_source, y_current, th_full, th_current; 
       double dx_current, dx_full, dy_current, dy_full, L_current, L_full, dth;
@@ -71,7 +70,10 @@ threads::PID::run (void)
       y_current = containers_.local_state[1];
       heading_current = containers_.local_state[2];
       
-      //printf("x_current = %f, y_current = %f, x_dest = %f, y_dest = %f\n", x_current, y_current, x_dest, y_dest);
+      printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
+        containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
+        containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
+      printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n" x_source, y_source, x_current, y_current, x_dest, y_dest);
       //printf("%f     %f\n", x_current, y_current);
       
       // Compute current distance to destination
@@ -107,8 +109,6 @@ threads::PID::run (void)
             lookahead_state[0] = x_dest;
             lookahead_state[1] = y_dest;
         }
-        //std::cout << "projected state = " << projected_state << std::endl;
-        //std::cout << "lookahead state = " << lookahead_state << std::endl;
         
         // IMPORTANT NOTE: the ideal state (the lookahead) is allowed to go past the actual destination because it is just a tool to get the boat on top of the goal
         dx_lookahead = lookahead_state.at(0) - x_current;
@@ -127,11 +127,11 @@ threads::PID::run (void)
           heading_signal = copysign(1.0, heading_signal);
           //std::cout << heading_signal << std::endl;
         }
-        //printf("heading error = %f   heading signal = %f\n", heading_error, heading_signal);
+        printf("heading error = %f   heading signal = %f\n", heading_error, heading_signal);
         
         // potentially reduce thrust signal due to too much heading error
         double base_surge_effort_fraction = containers_.LOS_surge_effort_fraction.to_double();
-        double surge_effort_fraction_coefficient = 0.2; // [0, 1], reduces thrust
+        double surge_effort_fraction_coefficient = 0.5; // [0, 1], reduces thrust
         double angle_from_projected_to_boat = atan2(projected_state.at(1) - y_current, projected_state.at(0) - x_current);
         double cross_product = cos(th_full)*sin(angle_from_projected_to_boat) - cos(angle_from_projected_to_boat)*sin(th_full);
         
@@ -149,7 +149,8 @@ threads::PID::run (void)
           {
             surge_effort_fraction_coefficient = 0.;
           }
-        }        
+        }   
+    
         double surge_effort_fraction = base_surge_effort_fraction*surge_effort_fraction_coefficient;
         std::pair<double, double> motor_signals = compute_motor_commands(surge_effort_fraction, heading_signal);        
         containers_.motor_signals.set(0, motor_signals.first);
@@ -157,12 +158,17 @@ threads::PID::run (void)
       }
       else
       {
-        //printf("At x = %f   y = %f, within %f meters of x = %f   y = %f\n", x_current, y_current, containers.sufficientProximity.to_double(), x_dest, y_dest);
+        printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
+        printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
+          containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
+          containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
+        printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n" x_source, y_source, x_current, y_current, x_dest, y_dest);
         //containers.self.agent.source.set(0, containers.local_state[0]);
         //containers.self.agent.source.set(1, containers.local_state[1]);
         containers_.motor_signals.set(0, 0.0);
         containers_.motor_signals.set(1, 0.0);
-        reset_error_integral();       
+        reset_error_integral();
+        update_coefficients();     
       }
       
       // TODO - set up velocity profile along the path that lets the desired thrust be modulated for slow start up and drift down. Independent of time, only depends on location along line.
@@ -178,19 +184,20 @@ threads::PID::run (void)
     //In teleop mode, get motor signals from thrust and heading fractions
     else if (containers_.teleop_status == 1)
     {
-
       std::pair<double, double> motor_signals = compute_motor_commands(
        containers_.thrustFraction.to_double(), 
        containers_.headingFraction.to_double());
 
       containers_.motor_signals.set(0, motor_signals.first);
       containers_.motor_signals.set(1, motor_signals.second);
-      //printf("In teleop. Motor signals are: %f, %f\n", motor_signals.at(0), motor_signals.at(1));
+      printf("In Teleop Mode. Motor signals are: %f, %f\n", motor_signals.first, motor_signals.second);
 
       reset_error_integral();
+      update_coefficients();
     }
     else
     {
+      printf("Autonomy disabled, not localized, or unknown teleop state\n");
       containers_.motor_signals.set(0, 0.0);
       containers_.motor_signals.set(1, 0.0);
 
@@ -225,6 +232,14 @@ void threads::PID::reset_error_integral()
   errorSum_ = 0.0;
 }
 
+void threads::PID::update_coefficients()
+{
+  kP_ = containers_.LOS_heading_PID[0];
+  kI_ = containers_.LOS_heading_PID[1];
+  kD_ = containers_.LOS_heading_PID[2];
+
+}
+
 std::pair<double, double> threads::PID::compute_motor_commands(double effort, double signal)
 {
   double m0 = 0.0;
@@ -234,7 +249,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   m0 = effort - signal;
   m1 = effort + signal;
   
-  //printf("Design: motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  printf("Design: motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   
   if (std::abs(m0) > 1.0)
   {
@@ -244,12 +259,22 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   {
     motor_overage1 = copysign(std::abs(m1) - 1.0, m1);
   }
-  double max_overage = std::max(motor_overage0, motor_overage1);
 
-  m0 -= max_overage;
-  m1 -= max_overage;
+
+  if (std::abs(motor_overage0) < std::abs(motor_overage1))
+  {
+    motor_overage0 = copysign(motor_overage1, m0);
+  }
+  else
+  {
+    motor_overage1 = copysign(motor_overage0, m1);
+  }
+
+
+  m0 -= motor_overage0;
+  m1 -= motor_overage1;
   
-  //printf("Design: motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  printf("Design: motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   //printf("Design: equivalent effort fractions: thrust = %f   heading = %f\n", corrected_thrust_fraction, heading_fraction);
   
   std::pair<double, double> result = std::make_pair(m0, m1);

@@ -163,8 +163,15 @@ platforms::boat::home (void)
    * return that we are in the process of moving to the final pose.
    **/
 
+  /*
+  // Should set the dest to home point instead?
   self_->agent.dest.set(0, self_->agent.dest[0]);
   self_->agent.dest.set(1, self_->agent.dest[1]);
+  */
+
+  self_->agent.dest.set(0, self_.agent.home[0]);
+  self_->agent.dest.set(1, self._agent.home[1]);
+
   self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
   self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
 
@@ -202,21 +209,28 @@ platforms::boat::move (
   double lat = location.lat();
   double lng = location.lng();
 
-  printf("platform.move():  lat = %f, lng = %f\n", lat, lng);
+  printf("platform.move() called to location:  lat = %f, lng = %f\n", lat, lng);
 
+  // Convert target lat, long into utm coordinates
   GeographicLib::GeoCoords coord(lat, lng, containers_.gpsZone.to_integer());
   double easting = coord.Easting();
   double northing = coord.Northing();   
 
   if (easting != self_->agent.dest[0] || northing != self_->agent.dest[1])
   {
-   // update source to prior destination
-   self_->agent.source.set(0, self_->agent.dest[0]);
-   self_->agent.source.set(1, self_->agent.dest[1]);
-   
-   // new destination
-   self_->agent.dest.set(0, easting);
-   self_->agent.dest.set(1, northing);    
+    /*
+    // update source to prior destination - Should this be set to current location?
+    self_->agent.source.set(0, self_->agent.dest[0]);
+    self_->agent.source.set(1, self_->agent.dest[1]);
+    */
+
+    // update source to current location
+    self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
+    self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
+
+    // new destination
+    self_->agent.dest.set(0, easting);
+    self_->agent.dest.set(1, northing);    
   }
 
   return gams::platforms::PLATFORM_MOVING;

@@ -76,6 +76,11 @@ namespace threads
     void reset_error_integral (void);
 
     /**
+      * Update pid coefficients from knowledge base
+      **/
+    void update_coefficients (void);
+
+    /**
       * Computes motor commands from effort fraction and signal
       **/
     std::pair<double, double> compute_motor_commands (double effort, double signal);

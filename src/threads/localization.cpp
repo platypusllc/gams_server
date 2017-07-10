@@ -251,7 +251,8 @@ void threads::localization::update()
       Eigen::MatrixXd covariance(2, 2);
       covariance = Eigen::MatrixXd::Identity(2, 2); 
       Datum datum(SENSOR_TYPE::GPS_VELOCITY, SENSOR_CATEGORY::LOCALIZATION, velocities, covariance);       
-      new_sensor_update(datum); // put this gps_velocity datum into the queue
+      // Don't use this data right now...
+      //new_sensor_update(datum); // put this gps_velocity datum into the queue
     }      
   }
   
