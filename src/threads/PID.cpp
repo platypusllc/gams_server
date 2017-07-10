@@ -73,7 +73,7 @@ threads::PID::run (void)
       printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
         containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
         containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
-      printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n" x_source, y_source, x_current, y_current, x_dest, y_dest);
+      printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
       //printf("%f     %f\n", x_current, y_current);
       
       // Compute current distance to destination
@@ -163,7 +163,7 @@ threads::PID::run (void)
         printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
           containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
           containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
-        printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n" x_source, y_source, x_current, y_current, x_dest, y_dest);
+        printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
         //containers.self.agent.source.set(0, containers.local_state[0]);
         //containers.self.agent.source.set(1, containers.local_state[1]);
         containers_.motor_signals.set(0, 0.0);
