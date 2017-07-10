@@ -198,7 +198,7 @@ threads::PID::run (void)
     }
     else
     {
-      printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled, containers_.localized, containers_.teleop_status);
+      printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
       containers_.motor_signals.set(0, 0.0);
       containers_.motor_signals.set(1, 0.0);
 
