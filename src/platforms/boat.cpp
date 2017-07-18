@@ -85,10 +85,10 @@ int platforms::boat::sense (void)
 int
 platforms::boat::analyze (void)
 {
-  printf("Current heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
+  //printf("Current heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
   containers_.heartbeat_connectivity = 1;
-  printf("setting connectivity heartbeat\n");
-  printf("New heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
+  //printf("setting connectivity heartbeat\n");
+  //printf("New heartbeat value: %d\n", containers_.heartbeat_connectivity.to_integer());
   return gams::platforms::PLATFORM_OK;
 }
 
@@ -211,7 +211,7 @@ platforms::boat::move (
   double lat = location.lat();
   double lng = location.lng();
 
-  printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %d\n", lat, lng, containers_.gpsZone.to_integer());
+  //printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %d\n", lat, lng, containers_.gpsZone.to_integer());
 
   // Convert target lat, long into utm coordinates
   GeographicLib::GeoCoords coord(lat, lng, containers_.gpsZone.to_integer());

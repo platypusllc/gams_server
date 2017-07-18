@@ -70,15 +70,15 @@ threads::PID::run (void)
       y_current = containers_.local_state[1];
       heading_current = containers_.local_state[2];
       
-      printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
-        containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
-        containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
-      printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
+      //printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
+      //  containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
+      //  containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
+      //printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
       //printf("%f     %f\n", x_current, y_current);
       
       // Compute current distance to destination
       containers_.dist_to_dest = sqrt(pow(x_dest - x_current, 2.) + pow(y_dest - y_current, 2.));
-      printf("Distance to destination: %f\n", containers_.dist_to_dest.to_double());
+      //printf("Distance to destination: %f\n", containers_.dist_to_dest.to_double());
 
       // If you are not yet at the destination (within the suffcient proximity)
       if (containers_.dist_to_dest.to_double() > containers_.sufficientProximity.to_double())
@@ -159,11 +159,11 @@ threads::PID::run (void)
       }
       else
       {
-        printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
-        printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
-          containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
-          containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
-        printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
+        //printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
+        //printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
+        //  containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
+        //  containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
+        //printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
         //containers.self.agent.source.set(0, containers.local_state[0]);
         //containers.self.agent.source.set(1, containers.local_state[1]);
         containers_.motor_signals.set(0, 0.0);
@@ -191,14 +191,14 @@ threads::PID::run (void)
 
       containers_.motor_signals.set(0, motor_signals.first);
       containers_.motor_signals.set(1, motor_signals.second);
-      printf("In Teleop Mode. Motor signals are: %f, %f\n", motor_signals.first, motor_signals.second);
+      //printf("In Teleop Mode. Motor signals are: %f, %f\n", motor_signals.first, motor_signals.second);
 
       reset_error_integral();
       update_coefficients();
     }
     else
     {
-      printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
+      //printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
       containers_.motor_signals.set(0, 0.0);
       containers_.motor_signals.set(1, 0.0);
 
@@ -250,7 +250,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   m0 = effort - signal;
   m1 = effort + signal;
   
-  printf("Motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  //printf("Motor signals BEFORE saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   
   if (std::abs(m0) > 1.0)
   {
@@ -275,7 +275,7 @@ std::pair<double, double> threads::PID::compute_motor_commands(double effort, do
   m0 -= motor_overage0;
   m1 -= motor_overage1;
   
-  printf("Motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
+  //printf("Motor signals AFTER saturation correction:  m0 = %f   m1 = %f\n", m0, m1);
   //printf("Design: equivalent effort fractions: thrust = %f   heading = %f\n", corrected_thrust_fraction, heading_fraction);
   
   std::pair<double, double> result = std::make_pair(m0, m1);
