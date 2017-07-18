@@ -178,11 +178,6 @@ namespace platforms
     // a threader for managing platform threads
     madara::threads::Threader threader_;    
     
-    // a default GPS frame
-    static gams::pose::GPSFrame  gps_frame;
-    
-    // a default Cartesian frame
-    static gams::pose::CartesianFrame  cartesian_frame;
 
     // platform specific containers
     Containers containers_;

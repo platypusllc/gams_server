@@ -1,10 +1,6 @@
 
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "boat.h"
-
-gams::pose::CartesianFrame  platforms::boat::cartesian_frame;   
-gams::pose::GPSFrame  platforms::boat::gps_frame;         
-        
  
 // factory class for creating a boat 
 gams::platforms::BasePlatform *
@@ -36,7 +32,7 @@ platforms::boat::boat (
     if (it == sensors->end ()) // create coverage sensor
     {
       // get origin
-      gams::utility::GPSPosition origin;
+      gams::pose::Position origin(gams::pose::gps_frame());
       madara::knowledge::containers::NativeDoubleArray origin_container;
       origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
       origin.from_container (origin_container);
@@ -312,7 +308,7 @@ platforms::boat::takeoff (void)
 const gams::pose::ReferenceFrame &
 platforms::boat::get_frame (void) const
 {
-  return gps_frame;
+  return gams::pose::gps_frame();
 }
 
 // Sets platform containers
