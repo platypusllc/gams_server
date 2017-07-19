@@ -161,7 +161,7 @@ platforms::boat::home (void)
    * return that we are in the process of moving to the final pose.
    **/
 
-  
+  printf("Platform.home() called\n");
   // Should set the dest to home point instead?
   self_->agent.dest.set(0, self_->agent.dest[0]);
   self_->agent.dest.set(1, self_->agent.dest[1]);
@@ -220,16 +220,17 @@ platforms::boat::move (
   // If given a new destination, reset dest and source
   if (std::abs(easting - self_->agent.dest[0]) > 0.00001 || std::abs(northing - self_->agent.dest[1]) > 0.00001)
   {
-    
+    /*
     // update source to prior destination - Should this be set to current location?
     self_->agent.source.set(0, self_->agent.dest[0]);
     self_->agent.source.set(1, self_->agent.dest[1]);
-
-    /*
+    */
+    printf("move called with new location, updating source and dest\n");
+    
     // update source to current location
     self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
     self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
-    */
+    
     // new destination
     self_->agent.dest.set(0, easting);
     self_->agent.dest.set(1, northing);
