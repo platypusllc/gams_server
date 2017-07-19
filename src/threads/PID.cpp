@@ -159,11 +159,11 @@ threads::PID::run (void)
       }
       else
       {
-        //printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
-        //printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
-        //  containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
-        //  containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
-        //printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
+        printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
+        printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
+          containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
+          containers_.eastingNorthingHeading[0], containers_.eastingNorthingHeading[1], containers_.self.agent.dest[0], containers_.self.agent.dest[1]);
+        printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
         //containers.self.agent.source.set(0, containers.local_state[0]);
         //containers.self.agent.source.set(1, containers.local_state[1]);
         containers_.motor_signals.set(0, 0.0);
@@ -198,7 +198,8 @@ threads::PID::run (void)
     }
     else
     {
-      //printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
+      printf("Not moving because conditions are not met. Zeroing motors.\n");
+      printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
       containers_.motor_signals.set(0, 0.0);
       containers_.motor_signals.set(1, 0.0);
 

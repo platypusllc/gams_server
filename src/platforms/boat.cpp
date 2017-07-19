@@ -43,7 +43,7 @@ platforms::boat::boat (
       (*sensors)["coverage"] = coverage_sensor;
     }
     (*sensors_)["coverage"] = (*sensors)["coverage"];
-    status_.init_vars (*knowledge, "");
+    status_.init_vars (*knowledge, get_id());
     
     // create threads
     // end create threads
