@@ -161,7 +161,6 @@ platforms::boat::home (void)
    * return that we are in the process of moving to the final pose.
    **/
 
-  printf("Platform.home() called\n");
   // Should set the dest to home point instead?
   self_->agent.dest.set(0, self_->agent.dest[0]);
   self_->agent.dest.set(1, self_->agent.dest[1]);
@@ -208,7 +207,7 @@ platforms::boat::move (
   double lat = location.lat();
   double lng = location.lng();
 
-  printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %d\n", lat, lng, containers_.gpsZone.to_integer());
+  //printf("platform.move() called to location:  lat = %f, lng = %f\nGPS Zone: %d\n", lat, lng, containers_.gpsZone.to_integer());
 
   // Convert target lat, long into utm coordinates
   GeographicLib::GeoCoords coord(lat, lng, containers_.gpsZone.to_integer());
@@ -225,7 +224,7 @@ platforms::boat::move (
     self_->agent.source.set(0, self_->agent.dest[0]);
     self_->agent.source.set(1, self_->agent.dest[1]);
     */
-    printf("move called with new location, updating source and dest\n");
+    //printf("move called with new location, updating source and dest\n");
     
     // update source to current location
     self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
@@ -241,7 +240,7 @@ platforms::boat::move (
   
   if (containers_.dist_to_dest <= epsilon)
   {
-    printf("Platform has arrived at location\n");
+    //printf("Platform has arrived at location\n");
     result = gams::platforms::PLATFORM_ARRIVED;
   }
 
