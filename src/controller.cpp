@@ -535,7 +535,7 @@ int main (int argc, char ** argv)
 
   threader.run (20.0, "localization", localizationThread);
   threader.run (35.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
-  threader.run (35.0, "JSON_write", new threads::JSON_write (port, containers));
+  threader.run (10.0, "JSON_write", new threads::JSON_write (port, containers));
   threader.run (20.0, "PID", new threads::PID(containers));
   // end thread creation
   
