@@ -163,6 +163,10 @@ void threads::localization::predict(double dt)
 
 void threads::localization::updateKB()
 {
+  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+    gams::loggers::LOG_MAJOR,
+    "threads::localizaion::updateKB:"
+    " INFO: Updating knowledge base\n");
   // update the knowledge base. Make sure to use containers_ so that these updates are not sent out constantly
   eastingNorthingHeading.at(0) = state(0, 0) + home_x;
   eastingNorthingHeading.at(1) = state(1, 0) + home_y;
@@ -175,11 +179,19 @@ void threads::localization::updateKB()
   //printf("heading = %f\n", state(2,0)*180.0/M_PI);
   
   containers_.eastingNorthingHeading.set(eastingNorthingHeading); // update the knowledge base
-  coord.Reset(containers_.gpsZone.to_integer(), containers_.northernHemisphere.to_integer(), eastingNorthingHeading.at(0), eastingNorthingHeading.at(1));        
-  location.at(0) = coord.Latitude();
-  location.at(1) = coord.Longitude();
-  location.at(2) = 0.0;
-  containers_.location.set(location);
+  
+  try {
+    coord.Reset(containers_.gpsZone.to_integer(), containers_.northernHemisphere.to_integer(), eastingNorthingHeading.at(0), eastingNorthingHeading.at(1));        
+    location.at(0) = coord.Latitude();
+    location.at(1) = coord.Longitude();
+    location.at(2) = 0.0;
+    containers_.location.set(location);
+  } catch (const GeographicLib::GeographicErr&) {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::updateKB:"
+      " Error: Error while converting UTM to Lat, Long\n");
+  }
   for (int i = 0; i < state.rows(); i++) 
   {
     containers_.local_state.set(i, state(i, 0));

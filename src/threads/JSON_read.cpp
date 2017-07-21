@@ -98,26 +98,35 @@ threads::JSON_read::run (void)
                   lat = GPRMC_to_degrees(lat)*( elems.at( (int)RMC_STRING::LAT_CARDINAL ).compare(NORTH) ?-1.:1.);
                   lon = GPRMC_to_degrees(lon)*(elems.at((int)RMC_STRING::LON_CARDINAL).compare(EAST)     ?-1.:1.);
                   //printf("Received Adafruit GPS lat/long = %f, %f\n", lat, lon);
-                  GeographicLib::GeoCoords coord(lat, lon);
-                  std::vector<double> gps_utm = {coord.Easting(), coord.Northing()};
-                  containers_.gpsZone = coord.Zone();
-                  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
-                    gams::loggers::LOG_MAJOR,
-                    "threads::JSON_read::run:"
-                    " INFO: Received GPS data from EBoard [%f, %f]\n",
-                    lat, lon);
-                  if (coord.Northp())
+                  try
                   {
-                    containers_.northernHemisphere = 1;
-                  }
-                  else
-                  {
-                    containers_.northernHemisphere = 0;
-                  }              
-                  Eigen::MatrixXd covariance(2, 2);
-                  covariance = Eigen::MatrixXd::Identity(2, 2);
-                  Datum datum(SENSOR_TYPE::GPS, SENSOR_CATEGORY::LOCALIZATION, gps_utm, covariance);
-                  new_sensor_callback(datum);                  
+                    GeographicLib::GeoCoords coord(lat, lon);
+                    std::vector<double> gps_utm = {coord.Easting(), coord.Northing()};
+                    containers_.gpsZone = coord.Zone();
+                    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                      gams::loggers::LOG_MAJOR,
+                      "threads::JSON_read::run:"
+                      " INFO: Received GPS data from EBoard [%f, %f]\n",
+                      lat, lon);
+                    if (coord.Northp())
+                    {
+                      containers_.northernHemisphere = 1;
+                    }
+                    else
+                    {
+                      containers_.northernHemisphere = 0;
+                    }              
+                    Eigen::MatrixXd covariance(2, 2);
+                    covariance = Eigen::MatrixXd::Identity(2, 2);
+                    Datum datum(SENSOR_TYPE::GPS, SENSOR_CATEGORY::LOCALIZATION, gps_utm, covariance);
+                    new_sensor_callback(datum);
+                  } catch (const GeographicLib::GeographicErr&)  {
+                    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                      gams::loggers::LOG_MAJOR,
+                      "threads::JSON_read::run:"
+                      " ERROR: Error while converting to UTM coordinate\n",
+                      lat, lon);
+                  }                
                 }                               
               }
               else if (type.compare("AHRS") == 0)              
@@ -201,7 +210,8 @@ threads::JSON_read::run (void)
             madara_logger_ptr_log(gams::loggers::global_logger.get(), 
               gams::loggers::LOG_MAJOR,
               "threads::JSON_read::run:"
-              " ERROR: JSON parsing failed\n");
+              " ERROR: JSON parsing failed [%s]\n",
+              raw_data_.c_str());
             //printf("ERROR: json parse failed: %s\n", e.what());
             //printf("Serial Input: %s\n", raw_data_.c_str());
           }
