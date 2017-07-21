@@ -247,13 +247,20 @@ void threads::localization::update()
   std::vector<double> value = current_datum.value();
   if (current_datum.type() == SENSOR_TYPE::GPS)
   {
-    
-    containers_.heartbeat_gps = 1;
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::update:"
+      " INFO: Processing GPS Datum [%f, %f]\n",
+      value.at(0), value.at(1));
 
-    /* Don't bother computing this since we don't currently use it
 
     value.at(0) -= home_x; // use local frame
     value.at(1) -= home_y;
+
+    containers_.heartbeat_gps = 1;
+
+    /*Don't bother computing this since we don't currently use it
+
     
     // save gps information for use in gps velocity calculation
     tR = utility::time_tools::dt(t0, t);

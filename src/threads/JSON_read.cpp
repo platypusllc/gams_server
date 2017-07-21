@@ -106,8 +106,8 @@ threads::JSON_read::run (void)
                     madara_logger_ptr_log(gams::loggers::global_logger.get(), 
                       gams::loggers::LOG_MAJOR,
                       "threads::JSON_read::run:"
-                      " INFO: Received GPS data from EBoard [%f, %f]\n",
-                      lat, lon);
+                      " INFO: Received GPS data from EBoard [%f, %f] -> [%f, %f]\n",
+                      lat, lon, coord.Easting(), coord.Northing());
                     if (coord.Northp())
                     {
                       containers_.northernHemisphere = 1;
