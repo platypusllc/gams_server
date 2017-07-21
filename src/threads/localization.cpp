@@ -73,12 +73,16 @@ void threads::localization::new_sensor_update(Datum datum)
   // Deal with initial GPS and compass values
   if (containers_.localized == 0)
   {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::new_sensor_update:"
+      " INFO: Boat waiting for intial localizaion data\n");
     if (containers_.gps_init == 0 && datum.type() == SENSOR_TYPE::GPS)
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(), 
         gams::loggers::LOG_MAJOR,
         "threads::localizaion::new_sensor_update:"
-        " Received first GPS Location\n");
+        " INFO: Received first GPS Location\n");
       //printf("Received first GPS: %f, %f\n", datum.value().at(0), datum.value().at(1)); 
       containers_.gps_init = 1;
       home_x = datum.value().at(0);
@@ -97,7 +101,7 @@ void threads::localization::new_sensor_update(Datum datum)
       madara_logger_ptr_log(gams::loggers::global_logger.get(), 
         gams::loggers::LOG_MAJOR,
         "threads::localization::new_sensor_update:"
-        " Received first compass reading\n");
+        " INFO: Received first compass reading\n");
       //printf("Received first compass: %f\n", datum.value().at(0));
       containers_.compass_init = 1;
       state(2, 0) = datum.value().at(0);
@@ -110,7 +114,7 @@ void threads::localization::new_sensor_update(Datum datum)
       madara_logger_ptr_log(gams::loggers::global_logger.get(), 
         gams::loggers::LOG_MAJOR,
         "threads::localizaion::new_sensor_update:"
-        " Localized, Sending Arm Signal\n");
+        " INFO: Localized, Sending Arm Signal\n");
       containers_.localized = 1; 
       containers_.arm_signal = 1;
       updateKB();     
