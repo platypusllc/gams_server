@@ -61,7 +61,7 @@ double period (1.0);
 double loop_time(-1.0);
 
 #define GAMS_RUN_HZ 1
-#define GAMS_SEND_HZ 5
+#define GAMS_SEND_HZ 2
 
 // madara commands from a file
 std::string madara_commands = "";
@@ -533,7 +533,7 @@ int main (int argc, char ** argv)
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
-  threader.run (10.0, "localization", localizationThread);
+  threader.run (20.0, "localization", localizationThread);
   threader.run (35.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
   threader.run (35.0, "JSON_write", new threads::JSON_write (port, containers));
   threader.run (20.0, "PID", new threads::PID(containers));
