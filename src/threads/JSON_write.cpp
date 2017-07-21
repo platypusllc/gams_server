@@ -40,28 +40,42 @@ threads::JSON_write::run (void)
   std::vector<double> motor_signals = containers_.motor_signals.to_record().to_doubles();
   if (motor_signals.size() < 2) 
   {
-      printf("WARNING: there was not two motor signals in the knowledge base\n");
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "threads::JSON_write::run"
+        " WARNING: there were not two motor signals in knowledge base\n");
       return;
   }
   //printf("motor signal 0 = %.3f   motor signal 1 = %.3f\n", motor_signals.at(0), motor_signals.at(1));
-  
-  // Differential Drive Support only
-  motor_json["m0"] = { {"v", motor_signals.at(0)} };
-  motor_json["m1"] = { {"v", motor_signals.at(1)} };
 
-
-  write(motor_json);
-  
   //Send arming signal to hardware
   if ( containers_.arm_signal == 1 )
   {
-    printf("Arming signal sent\n");
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::JSON_write::run:"
+      " INFO: Arm Signal Received, sending EBoard arm command\n");
     json arm_json;
     arm_json["e"] = { { "cmd", "arm" } };
     containers_.arm_signal = 0;
     write( arm_json );
   }
   
+  
+  // Differential Drive Support only
+  motor_json["m0"] = { {"v", motor_signals.at(0)} };
+  motor_json["m1"] = { {"v", motor_signals.at(1)} };
+
+  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+    gams::loggers::LOG_MAJOR,
+    "threads::JSON_write::run:"
+    " INFO: Writing motor commands [%f, %f]\n",
+    motor_signals.at(0),
+    motor_signals.at(1));
+
+  write(motor_json);
+  
+
   //Check for error corde and inform eboard.
   /*if ( containers_.error_signal != 0 )
   {
@@ -100,7 +114,10 @@ void threads::JSON_write::write(json & json_data)
   }
   else 
   {
-      printf("ERROR: write_some() did not successfully write\n");
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "treads::JSON_write::write:"
+      " ERROR: writ_some() failed\n");
   }
 
 }

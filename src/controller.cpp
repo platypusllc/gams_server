@@ -56,9 +56,12 @@ std::string algorithm ("null");
 std::vector <std::string> accents;
 
 // controller variables
-double period (0.2);
+double period (1.0);
 //double loop_time (600.0);
 double loop_time(-1.0);
+
+#define GAMS_RUN_HZ 5
+#define GAMS_SEND_HZ 10
 
 // madara commands from a file
 std::string madara_commands = "";
@@ -408,31 +411,41 @@ int main (int argc, char ** argv)
   bool port_ready = false;
   while (!port_ready)
   {
-    printf("attempting to open eboard port: %s\n", port_name.c_str());
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "controller::main:"
+      " INFO: Opening serial port to EBoard\n");
     port->open(port_name, ec);
     if (!ec) 
     {
       if (port->is_open()) 
       {
-          printf("eboard port is open\n");
           port->set_option(boost::asio::serial_port_base::baud_rate(EBOARD_BAUD_RATE));
           port_ready = true;
-          printf("port is ready\n");
+          madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+            gams::loggers::LOG_MAJOR,
+            "controller::main:"
+            " INFO: port->open() succeeded, connected to EBoard\n");
           break;
       }
       else 
       {
-        printf("ERROR: port->is_open() returned false\n");
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "controller::main:"
+        " ERROR: port->open() returned false\n");
       }
     }
     else 
     {
-      printf("WARNING: port->open() failed:  %s\n Do you have the eboard plugged in?\n", ec.message().c_str());
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "controller::main:"
+        " ERROR: port->open() failed: EBoard not plugged in?\n");
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   
-  printf("done setting up serial port\n");
   
   // begin adding custom algorithm factories
   // end adding custom algorithm factories
@@ -517,25 +530,21 @@ int main (int argc, char ** argv)
    * thread option with the gpc.pl script.
    **/
 
-  printf("madara gams setup done, starting thread setup\n");
-
   // begin thread creation
   threads::localization * localizationThread = new threads::localization(containers);
 
-  threader.run (35.0, "localization", localizationThread);
+  threader.run (40.0, "localization", localizationThread);
   threader.run (35.0, "JSON_read", new threads::JSON_read (port, containers, localizationThread));
   threader.run (35.0, "JSON_write", new threads::JSON_write (port, containers));
-  threader.run (15.0, "PID", new threads::PID(containers));
+  threader.run (20.0, "PID", new threads::PID(containers));
   // end thread creation
   
-  printf("all threads started\n");
-
   /**
    * END WARNING
    **/
   
   // run a mape loop for algorithm and platform control
-  controller.run (period, loop_time);
+  controller.run_hz (GAMS_RUN_HZ, loop_time, GAMS_SEND_HZ);
 
   // terminate all threads after the controller
   threader.terminate ();

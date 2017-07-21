@@ -75,7 +75,11 @@ void threads::localization::new_sensor_update(Datum datum)
   {
     if (containers_.gps_init == 0 && datum.type() == SENSOR_TYPE::GPS)
     {
-      printf("Received first GPS: %f, %f\n", datum.value().at(0), datum.value().at(1)); 
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "threads::localizaion::new_sensor_update:"
+        " Received first GPS Location\n");
+      //printf("Received first GPS: %f, %f\n", datum.value().at(0), datum.value().at(1)); 
       containers_.gps_init = 1;
       home_x = datum.value().at(0);
       home_y = datum.value().at(1);
@@ -90,7 +94,11 @@ void threads::localization::new_sensor_update(Datum datum)
     }
     if (containers_.compass_init == 0 && (datum.type() == SENSOR_TYPE::COMPASS || datum.type() == SENSOR_TYPE::AHRS))
     {
-      printf("Received first compass: %f\n", datum.value().at(0));
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "threads::localization::new_sensor_update:"
+        " Received first compass reading\n");
+      //printf("Received first compass: %f\n", datum.value().at(0));
       containers_.compass_init = 1;
       state(2, 0) = datum.value().at(0);
       //state(2, 0) = 1.0;
@@ -99,7 +107,10 @@ void threads::localization::new_sensor_update(Datum datum)
     }
     if (containers_.compass_init == 1 && containers_.gps_init == 1)
     {
-      printf("Sending armed signal\n");
+      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+        gams::loggers::LOG_MAJOR,
+        "threads::localizaion::new_sensor_update:"
+        " Localized, Sending Arm Signal\n");
       containers_.localized = 1; 
       containers_.arm_signal = 1;
       updateKB();     
@@ -111,7 +122,10 @@ void threads::localization::new_sensor_update(Datum datum)
   std::lock_guard<std::mutex> lock(queue_mutex);
   if (data_queue.size() > MAX_DATA_QUEUE_SIZE)
   {
-    printf("WARNING: localization queue is too long, throwing out oldest datum\n");
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::new_sensor_update:"
+      " WARNING: localization queue is too long, throwing away oldest datum\n");
     data_queue.pop(); // throw out oldest item
   }
   data_queue.push(datum);// push Datum to queue
@@ -201,7 +215,10 @@ void threads::localization::update()
   double dt = utility::time_tools::dt(t, current_datum.timestamp());
   if (dt < 0)
   {
-    printf("WARNING: localization timestep is negative, skipping sensor update\n");
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::update:"
+      " WARNING: localization timestep is negative, skipping sensor update\n");
     return;
   }
   
@@ -214,6 +231,8 @@ void threads::localization::update()
   {
     
     containers_.heartbeat_gps = 1;
+
+    /* Don't bother computing this since we don't currently use it
 
     value.at(0) -= home_x; // use local frame
     value.at(1) -= home_y;
@@ -235,6 +254,7 @@ void threads::localization::update()
         gps_data_y.erase(gps_data_y.begin() + i);
       }
     }
+
     // if there are enough gps data remaining, calculate dx/dt and dy/dt
     if (gps_data_t.size() >= GPS_HISTORY_REQUIRED_SIZE)
     {
@@ -256,7 +276,8 @@ void threads::localization::update()
       Datum datum(SENSOR_TYPE::GPS_VELOCITY, SENSOR_CATEGORY::LOCALIZATION, velocities, covariance);       
       // Don't use this data right now...
       //new_sensor_update(datum); // put this gps_velocity datum into the queue
-    }      
+    }
+    */
   }
   
   Eigen::Map<Eigen::MatrixXd> z_(value.data(), value.size(), 1);
@@ -277,7 +298,11 @@ void threads::localization::update()
   
   if (S.determinant() < pow(10.0, -12.0))
   {
-    printf("WARNING: innovation covariance is singular for sensor type: %s\n", current_datum.type_string().c_str());
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::update:"
+      " WARNING: innovation covariance is singular\n");
+    //printf("WARNING: innovation covariance is singular for sensor type: %s\n", current_datum.type_string().c_str());
     std::cout << "z = " << z << std::endl;
     std::cout << "H = " << H << std::endl;
     std::cout << "R = " << R << std::endl;

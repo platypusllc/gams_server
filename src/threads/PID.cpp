@@ -54,8 +54,10 @@ threads::PID::run (void)
 
   if (containers_.autonomy_enabled == 1 && containers_.teleop_status != 1 && containers_.localized == 1)
     {
-      printf("Autonomy enabled and boat is localized, moving to desired destination\n");
-
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "threads::PID::run:" 
+          " INFO: Autonomy enabled and Boat is localized\n");
       // goal state - determined by containers for agent.id.source, agent.id.destination, and agent.id.desired_velocity
       double x_dest, x_source, x_current, y_dest, y_source, y_current, th_full, th_current; 
       double dx_current, dx_full, dy_current, dy_full, L_current, L_full, dth;
@@ -83,6 +85,12 @@ threads::PID::run (void)
       // If you are not yet at the destination (within the suffcient proximity)
       if (containers_.dist_to_dest.to_double() > containers_.sufficientProximity.to_double())
       {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "threads::PID::run:" 
+          " INFO: Moving to desired destination [%f, %f]\n",
+          containers_.self.agent.dest[0],
+          containers_.self.agent.dest[1]);
         dx_full = x_dest - x_source; // x distance from starting location to destination
         dx_current = x_current - x_source; // x distance from current boat position to destination
         dy_full = y_dest - y_source; // y distance from starting location to destination
@@ -128,7 +136,7 @@ threads::PID::run (void)
           heading_signal = copysign(1.0, heading_signal);
           //std::cout << heading_signal << std::endl;
         }
-        printf("heading error = %f   heading signal = %f\n", heading_error, heading_signal);
+        //printf("heading error = %f   heading signal = %f\n", heading_error, heading_signal);
         
         // potentially reduce thrust signal due to too much heading error
         double base_surge_effort_fraction = containers_.LOS_surge_effort_fraction.to_double();
@@ -159,6 +167,10 @@ threads::PID::run (void)
       }
       else
       {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "threads::PID::run:" 
+          " INFO: Boat within sufficient distance of destination, zeroing motors\n");
         //printf("Boat within %f meters of destination, dist: %f\n", containers_.sufficientProximity.to_double(),  containers_.dist_to_dest.to_double());
         //printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
         //  containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
@@ -185,6 +197,10 @@ threads::PID::run (void)
     //In teleop mode, get motor signals from thrust and heading fractions
     else if (containers_.teleop_status == 1)
     {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "threads::PID::run:" 
+        " INFO: Telop engaged\n");
       std::pair<double, double> motor_signals = compute_motor_commands(
        containers_.thrustFraction.to_double(), 
        containers_.headingFraction.to_double());

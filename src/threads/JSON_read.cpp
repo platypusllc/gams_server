@@ -67,6 +67,11 @@ threads::JSON_read::run (void)
                 std::vector<std::string> elems = utility::string_tools::split(data, ' ');
                 double battery_voltage = std::stod(elems.at(0), nullptr);
                 //printf("battery voltage = %.3f V\n", battery_voltage);
+                madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                  gams::loggers::LOG_MAJOR,
+                  "threads::JSON_read::run:"
+                  " INFO: Received Battery Voltage data from EBoard %f\n",
+                  battery_voltage);
                 containers_.battery_voltage = battery_voltage;
               }
              
@@ -81,7 +86,10 @@ threads::JSON_read::run (void)
                 double lon = -999.;
                 if ( !elems.at((int)RMC_STRING::LAT_RAW).size()|| !elems.at((int)RMC_STRING::LON_RAW).size())
                 {
-                  printf("WARNING: Adafruit GPS does not have a fix\n");
+                  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:"
+                    " WARNING: Adafruit GPS does not hae a fix\n");
                 }
                 else
                 {                                 
@@ -93,7 +101,11 @@ threads::JSON_read::run (void)
                   GeographicLib::GeoCoords coord(lat, lon);
                   std::vector<double> gps_utm = {coord.Easting(), coord.Northing()};
                   containers_.gpsZone = coord.Zone();
-                  printf("utm coordinates from gps chip: %f, %f, %d\n", coord.Easting(), coord.Northing(), coord.Zone());
+                  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:"
+                    " INFO: Received GPS data from EBoard [%f, %f]\n",
+                    lat, lon);
                   if (coord.Northp())
                   {
                     containers_.northernHemisphere = 1;
@@ -133,9 +145,15 @@ threads::JSON_read::run (void)
                   Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
                   new_sensor_callback(datum);
                 }catch (const std::invalid_argument&) {
-                  printf("Argument is invalid\n");
+                  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:" 
+                    " ERROR: Invalid Argument exception while processing AHRS data\n");
                 } catch (const std::out_of_range&) {
-                  printf("Argument is out of range for a double\n");
+                  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:" 
+                    " ERROR: Argument out of range exception while processing AHRS data\n");
                 }
               }
               else if (type.compare("imu") == 0)
@@ -154,23 +172,38 @@ threads::JSON_read::run (void)
                   double yaw = 180.0 - raw_yaw; // Flip direction and map to -180 to 180
                   yaw *= M_PI / 180.0; // Convert to Radians
 
+                  madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:"
+                    " INFO: Received IMU data from EBoard: %f\n",
+                    yaw);
                   std::vector<double> compass = {yaw};
                   Eigen::MatrixXd covariance(1, 1);
                   covariance = 0.00001*Eigen::MatrixXd::Identity(1, 1); 
                   Datum datum(SENSOR_TYPE::COMPASS, SENSOR_CATEGORY::LOCALIZATION, compass, covariance);
                   new_sensor_callback(datum);
                 }catch (const std::invalid_argument&) {
-                  printf("Argument is invalid\n");
+                  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:" 
+                    " ERROR: Invalid Argument exception while processing IMU data\n");
                 } catch (const std::out_of_range&) {
-                  printf("Argument is out of range for a double\n");
+                  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                    gams::loggers::LOG_MAJOR,
+                    "threads::JSON_read::run:" 
+                    " ERROR: Argument out of range exception while processing IMU data\n");
                 }
               }
             }
           }
           catch (std::exception e) 
           {
-            printf("ERROR: json parse failed: %s\n", e.what());
-            printf("Serial Input: %s\n", raw_data_.c_str());
+            madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+              gams::loggers::LOG_MAJOR,
+              "threads::JSON_read::run:"
+              " ERROR: JSON parsing failed\n");
+            //printf("ERROR: json parse failed: %s\n", e.what());
+            //printf("Serial Input: %s\n", raw_data_.c_str());
           }
         }
         else
@@ -186,7 +219,12 @@ threads::JSON_read::run (void)
     }        
   }
   else if (ec){
-    printf("ERROR: port_->read_some() error: %s\n", ec.message().c_str());
+    madara_logger_ptr_log(gams::loggers::global_logger.get(), 
+      gams::loggers::LOG_MAJOR,
+      "threads::JSON_read::run:"
+      " ERROR: port->read_some() error - %s\n",
+      ec.message().c_str());
+    //printf("ERROR: port_->read_some() error: %s\n", ec.message().c_str());
   }
 }
 
