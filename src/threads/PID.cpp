@@ -64,13 +64,24 @@ threads::PID::run (void)
       double projected_length, distance_from_ideal_line;
       double lookahead_distance, dx_lookahead, dy_lookahead;
       double heading_desired, heading_current, heading_error, heading_signal;
-      x_dest = containers_.self.agent.dest[0] - containers_.self.agent.home[0];
-      y_dest = containers_.self.agent.dest[1] - containers_.self.agent.home[1];
-      x_source = containers_.self.agent.source[0] - containers_.self.agent.home[0];
-      y_source = containers_.self.agent.source[1] - containers_.self.agent.home[1];
-      x_current = containers_.local_state[0];
-      y_current = containers_.local_state[1];
-      heading_current = containers_.local_state[2];
+
+      // optimization: grab locations once and use local copy without mutexing
+      std::vector <double> home (
+        containers_.self.agent.home.to_record ().to_doubles ());
+      std::vector <double> dest (
+        containers_.self.agent.dest.to_record ().to_doubles ());
+      std::vector <double> source (
+        containers_.self.agent.source.to_record ().to_doubles ());
+      std::vector <double> local_state (
+        containers_.self.agent.source.to_record ().to_doubles ());
+
+      x_dest = dest[0] - home[0];
+      y_dest = dest[1] - home[1];
+      x_source = source[0] - home[0];
+      y_source = source[1] - home[1];
+      x_current = local_state[0];
+      y_current = local_state[1];
+      heading_current = local_state[2];
       
       //printf("Home: %f, %f; Source: %f,%f; Current: %f, %f; Destination: %f,%f\n", 
       //  containers_.self.agent.home[0], containers_.self.agent.home[1], containers_.self.agent.source[0], containers_.self.agent.source[1],
@@ -78,19 +89,23 @@ threads::PID::run (void)
       //printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
       //printf("%f     %f\n", x_current, y_current);
       
-      // Compute current distance to destination
-      containers_.dist_to_dest = sqrt(pow(x_dest - x_current, 2.) + pow(y_dest - y_current, 2.));
+      // Compute current distance to destination and save to local variable
+      double dist_to_dest = sqrt(
+        pow(x_dest - x_current, 2.) + pow(y_dest - y_current, 2.));
+      containers_.dist_to_dest = dist_to_dest;
       //printf("Distance to destination: %f\n", containers_.dist_to_dest.to_double());
 
-      // If you are not yet at the destination (within the suffcient proximity)
-      if (containers_.dist_to_dest.to_double() > containers_.sufficientProximity.to_double())
+      // If you are not yet at the destination (within the suffcient proximity).
+      // optimization: use local dist_to_dest to save a mutex
+      if (dist_to_dest > containers_.sufficientProximity.to_double ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "threads::PID::run:" 
           " INFO: Moving to desired destination [%f, %f]\n",
-          containers_.self.agent.dest[0],
-          containers_.self.agent.dest[1]);
+          dest[0],
+          dest[1]);
+
         dx_full = x_dest - x_source; // x distance from starting location to destination
         dx_current = x_current - x_source; // x distance from current boat position to destination
         dy_full = y_dest - y_source; // y distance from starting location to destination
@@ -161,9 +176,14 @@ threads::PID::run (void)
         }   
     
         double surge_effort_fraction = base_surge_effort_fraction*surge_effort_fraction_coefficient;
-        std::pair<double, double> motor_signals = compute_motor_commands(surge_effort_fraction, heading_signal);        
-        containers_.motor_signals.set(0, motor_signals.first);
-        containers_.motor_signals.set(1, motor_signals.second);
+        std::pair<double, double> motor_signals = compute_motor_commands(surge_effort_fraction, heading_signal);
+
+        // optimization: use only one set for a vector
+        std::vector <double> motor_commands_vector;
+        motor_commands_vector.push_back (motor_signals.first);
+        motor_commands_vector.push_back (motor_signals.second);
+
+        containers_.motor_signals.set (motor_commands_vector);
       }
       else
       {
@@ -178,8 +198,11 @@ threads::PID::run (void)
         //printf("Source: %f, %f; Current: %f, %f; Desired: %f, %f\n", x_source, y_source, x_current, y_current, x_dest, y_dest);
         //containers.self.agent.source.set(0, containers.local_state[0]);
         //containers.self.agent.source.set(1, containers.local_state[1]);
-        containers_.motor_signals.set(0, 0.0);
-        containers_.motor_signals.set(1, 0.0);
+
+        // optimization: use only one mutex to set the vector of 2 0.0 commands
+        std::vector <double> motor_commands_vector (2, 0.0);
+        containers_.motor_signals.set (motor_commands_vector);
+
         reset_error_integral();
         update_coefficients();     
       }
@@ -205,8 +228,12 @@ threads::PID::run (void)
        containers_.thrustFraction.to_double(), 
        containers_.headingFraction.to_double());
 
-      containers_.motor_signals.set(0, motor_signals.first);
-      containers_.motor_signals.set(1, motor_signals.second);
+      // optimization: use only one set for a vector
+      std::vector <double> motor_commands_vector;
+      motor_commands_vector.push_back (motor_signals.first);
+      motor_commands_vector.push_back (motor_signals.second);
+
+      containers_.motor_signals.set (motor_commands_vector);
       //printf("In Teleop Mode. Motor signals are: %f, %f\n", motor_signals.first, motor_signals.second);
 
       reset_error_integral();
@@ -216,8 +243,10 @@ threads::PID::run (void)
     {
       //printf("Not moving because conditions are not met. Zeroing motors.\n");
       //printf("Autonomy: %d, localized: %d, teleop_status: %d\n", containers_.autonomy_enabled.to_integer(), containers_.localized.to_integer(), containers_.teleop_status.to_integer());
-      containers_.motor_signals.set(0, 0.0);
-      containers_.motor_signals.set(1, 0.0);
+
+      // optimization: use only one mutex to set the vector of 2 0.0 commands
+      std::vector <double> motor_commands_vector (2, 0.0);
+      containers_.motor_signals.set (motor_commands_vector);
 
       reset_error_integral();
     }
@@ -252,9 +281,13 @@ void threads::PID::reset_error_integral()
 
 void threads::PID::update_coefficients()
 {
-  kP_ = containers_.LOS_heading_PID[0];
-  kI_ = containers_.LOS_heading_PID[1];
-  kD_ = containers_.LOS_heading_PID[2];
+  // optimization: use only one mutex to retrieve LOS_heading_PID
+  std::vector <double> LOS_heading_PID (
+    containers_.LOS_heading_PID.to_record ().to_doubles ());
+
+  kP_ = LOS_heading_PID[0];
+  kI_ = LOS_heading_PID[1];
+  kD_ = LOS_heading_PID[2];
 
 }
 
