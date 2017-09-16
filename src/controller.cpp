@@ -355,6 +355,7 @@ void handle_arguments (int argc, char ** argv)
 int main (int argc, char ** argv)
 {
   settings.type = madara::transport::MULTICAST;
+  settings.queue_length = 10000000;
  
   // handle all user arguments
   handle_arguments (argc, argv);
