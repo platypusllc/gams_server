@@ -66,7 +66,7 @@ threads::localization::run (void)
   update();
 }
 
-void threads::localization::new_sensor_update(Datum datum)
+void threads::localization::new_sensor_update(const Datum & datum)
 {
   //printf("Datum unique_id_count = %d    @ %s\n", Datum::unique_id_count, datum.human_readable_time().c_str());
 
@@ -88,12 +88,16 @@ void threads::localization::new_sensor_update(Datum datum)
       containers_.gps_init = 1;
       home_x = datum.value().at(0);
       home_y = datum.value().at(1);
-      containers_.self.agent.home.set(0, home_x);
-      containers_.self.agent.home.set(1, home_y);
-      containers_.self.agent.source.set(0, home_x);
-      containers_.self.agent.source.set(1, home_y);
-      containers_.self.agent.dest.set(0, home_x);
-      containers_.self.agent.dest.set(1, home_y);
+
+      // as an optimization, create a home location vector so
+      // we only use one mutex per container below for set
+      std::vector <double> home_location (datum.value ());
+      home_location.resize (2);
+
+      // optimization can be seen here (reduces mutual exclusions by 50%)
+      containers_.self.agent.home.set (home_location);
+      containers_.self.agent.source.set (home_location);
+      containers_.self.agent.dest.set (home_location);
       state(0, 0) = 0.0;
       state(1, 0) = 0.0;      
     }

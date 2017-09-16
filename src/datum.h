@@ -56,13 +56,13 @@ public:
   Datum(SENSOR_TYPE type, SENSOR_CATEGORY category, std::vector<double> value, Eigen::MatrixXd covariance);
   ~Datum();
   void set_location(GeographicLib::GeoCoords location);
-  std::vector<double> value();
-  Eigen::MatrixXd covariance();
-  SENSOR_TYPE type();
-  long unique_id();
-  std::chrono::time_point<std::chrono::high_resolution_clock> timestamp();
-  std::string human_readable_time();
-  std::string type_string();
+  std::vector<double> value() const;
+  Eigen::MatrixXd covariance() const;
+  SENSOR_TYPE type() const;
+  long unique_id() const;
+  std::chrono::time_point<std::chrono::high_resolution_clock> timestamp() const;
+  std::string human_readable_time() const;
+  std::string type_string() const;
 
   static long unique_id_count;
 

@@ -59,7 +59,7 @@ namespace threads
       **/
     virtual void run (void);
 
-    void new_sensor_update(Datum datum);
+    void new_sensor_update(const Datum & datum);
     void update();
 
   private:

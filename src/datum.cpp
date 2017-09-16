@@ -55,37 +55,37 @@ void Datum::set_location(GeographicLib::GeoCoords location)
   location_ = location;
 }
 
-std::vector<double> Datum::value()
+std::vector<double> Datum::value() const
 {
   return value_;
 }
 
-Eigen::MatrixXd Datum::covariance()
+Eigen::MatrixXd Datum::covariance() const
 {
   return covariance_;
 }
 
-SENSOR_TYPE Datum::type()
+SENSOR_TYPE Datum::type() const
 {
   return type_;
 }
 
-long Datum::unique_id()
+long Datum::unique_id() const
 {
   return unique_id_;
 }
 
-std::chrono::time_point<std::chrono::high_resolution_clock> Datum::timestamp()
+std::chrono::time_point<std::chrono::high_resolution_clock> Datum::timestamp() const
 {
   return timestamp_;
 }
 
-std::string Datum::human_readable_time()
+std::string Datum::human_readable_time() const
 {
   return human_readable_time_;
 }
 
-std::string Datum::type_string()
+std::string Datum::type_string() const
 {
   return type_string_;
 }
