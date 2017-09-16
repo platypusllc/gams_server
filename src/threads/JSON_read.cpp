@@ -75,7 +75,7 @@ threads::JSON_read::run (void)
                 containers_.battery_voltage = battery_voltage;
               }
              
-              if (type.compare("gps") == 0)              
+              else if (type.compare("gps") == 0)              
               {
                 std::string nmea = j.front().find("data").value();
                 utility::string_tools::remove_quotes(nmea);
