@@ -60,6 +60,12 @@ namespace threads
     virtual void run (void);
 
     void new_sensor_update(const Datum & datum);
+
+    /**
+     * Set the localization and arm field once both GPS and compass are init
+     **/
+    void arm_and_set_localized (void);
+
     void update();
 
   private:

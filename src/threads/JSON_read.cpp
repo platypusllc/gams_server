@@ -238,7 +238,7 @@ threads::JSON_read::run (void)
   }
 }
 
-double threads::JSON_read::GPRMC_to_degrees(double value)
+double threads::JSON_read::GPRMC_to_degrees(double value) const
 {
   double fullDegrees = floor(value/100.0);
   double minutes = value - fullDegrees*100.0;

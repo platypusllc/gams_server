@@ -66,6 +66,21 @@ threads::localization::run (void)
   update();
 }
 
+void threads::localization::arm_and_set_localized (void)
+{
+  if (containers_.compass_init == 1 && containers_.gps_init == 1)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "threads::localizaion::new_sensor_update:"
+      " INFO: Localized, Sending Arm Signal\n");
+
+    containers_.localized = 1;
+    containers_.arm_signal = 1;
+    updateKB ();
+  }
+}
+
 void threads::localization::new_sensor_update(const Datum & datum)
 {
   //printf("Datum unique_id_count = %d    @ %s\n", Datum::unique_id_count, datum.human_readable_time().c_str());
@@ -77,7 +92,10 @@ void threads::localization::new_sensor_update(const Datum & datum)
       gams::loggers::LOG_MAJOR,
       "threads::localizaion::new_sensor_update:"
       " INFO: Boat waiting for intial localizaion data\n");
-    if (containers_.gps_init == 0 && datum.type() == SENSOR_TYPE::GPS)
+
+    // optimization: looking at local values before checking container values
+    // which cause mutexes
+    if (datum.type () == SENSOR_TYPE::GPS && containers_.gps_init == 0)
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(), 
         gams::loggers::LOG_MAJOR,
@@ -99,9 +117,11 @@ void threads::localization::new_sensor_update(const Datum & datum)
       containers_.self.agent.source.set (home_location);
       containers_.self.agent.dest.set (home_location);
       state(0, 0) = 0.0;
-      state(1, 0) = 0.0;      
+      state(1, 0) = 0.0;
+
+      arm_and_set_localized ();
     }
-    if (containers_.compass_init == 0 && (datum.type() == SENSOR_TYPE::COMPASS || datum.type() == SENSOR_TYPE::AHRS))
+    else if ((datum.type () == SENSOR_TYPE::COMPASS || datum.type () == SENSOR_TYPE::AHRS) && containers_.compass_init == 0)
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(), 
         gams::loggers::LOG_MAJOR,
@@ -114,17 +134,9 @@ void threads::localization::new_sensor_update(const Datum & datum)
       //state(2, 0) = 1.0;
       heading = datum.value().at(0);
       //std::cout << "Updated state = " << state.transpose() << std::endl;
+      arm_and_set_localized ();
     }
-    if (containers_.compass_init == 1 && containers_.gps_init == 1)
-    {
-      madara_logger_ptr_log(gams::loggers::global_logger.get(), 
-        gams::loggers::LOG_MAJOR,
-        "threads::localizaion::new_sensor_update:"
-        " INFO: Localized, Sending Arm Signal\n");
-      containers_.localized = 1; 
-      containers_.arm_signal = 1;
-      updateKB();     
-    }
+
     return; // don't do anything until at least 1 gps and compass measurement come through
   }
 
@@ -198,10 +210,20 @@ void threads::localization::updateKB()
       "threads::localizaion::updateKB:"
       " Error: Error while converting UTM to Lat, Long\n");
   }
+
+  // optimization: to prevent state.rows() # of mutex accesses,
+  // create a local vector and populate it, then use the
+  // set double vector method to use only one mutual exclusion
+  std::vector <double> temp_state;
+  temp_state.resize ((size_t) state.rows());
+
   for (int i = 0; i < state.rows(); i++) 
   {
-    containers_.local_state.set(i, state(i, 0));
-  }    
+    temp_state[i] = state(i, 0);
+  }
+
+  // the actual optimization is here. One mutex for whole state vector
+  containers_.local_state.set (temp_state);
 }
 
 void threads::localization::update()

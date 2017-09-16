@@ -52,7 +52,14 @@ namespace threads
     virtual void run (void);
 
   private:
-    double GPRMC_to_degrees(double value);
+
+    /**
+     * Converts GPS readings to degrees
+     * @param value   the GPS reading to convert
+     * @return  the reading in degrees
+     **/
+    double GPRMC_to_degrees(double value) const;
+
     char end_of_line_char_;
     int rejected_line_count_;
     std::function<void(Datum)> new_sensor_callback;
