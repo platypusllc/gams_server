@@ -61,7 +61,7 @@ double period (1.0);
 double loop_time(-1.0);
 
 #define GAMS_RUN_HZ 1
-#define GAMS_SEND_HZ 2
+#define GAMS_SEND_HZ 1
 
 // madara commands from a file
 std::string madara_commands = "";
@@ -76,6 +76,9 @@ Integer num_agents (-1);
 // file path to save received files to
 std::string file_path;
 
+// controller settings are preferred with GAMS now
+gams::controllers::ControllerSettings controller_settings;
+
 void print_usage (char * prog_name)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -84,7 +87,12 @@ void print_usage (char * prog_name)
 "     Loop controller setup for gams\n" 
 " [-A |--algorithm type]        algorithm to start with\n" 
 " [-a |--accent type]           accent algorithm to start with\n" 
-" [-b |--broadcast ip:port]     the broadcast ip to send and listen to\n" 
+" [-b |--broadcast ip:port]     the broadcast ip to send and listen to\n"
+" [-cp|--checkpoint-prefix pref the filename prefix for checkpoints\n"
+" [-cs|--checkpoint-strategy #  the strategy to use for checkpointing\n"
+"                               0: None (default)\n"
+"                               1: Every controller loop\n"
+"                               2: Every controller send update\n"
 " [-d |--domain domain]         the knowledge domain to send and listen to\n" 
 " [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\n" 
 " [-f |--logfile file]          log to a file\n" 
@@ -139,6 +147,30 @@ void handle_arguments (int argc, char ** argv)
       {
         settings.hosts.push_back (argv[i + 1]);
         settings.type = madara::transport::BROADCAST;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == "-cp" || arg1 == "--checkpoint-prefix")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> controller_settings.checkpoint_prefix;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == "-cs" || arg1 == "--checkpoint-strategy")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> controller_settings.checkpoint_strategy;
       }
       else
         print_usage (argv[0]);
@@ -225,6 +257,8 @@ void handle_arguments (int argc, char ** argv)
       {
         std::stringstream buffer (argv[i + 1]);
         buffer >> loop_time;
+
+        controller_settings.run_time = loop_time;
       }
       else
         print_usage (argv[0]);
@@ -301,6 +335,8 @@ void handle_arguments (int argc, char ** argv)
       {
         std::stringstream buffer (argv[i + 1]);
         buffer >> period;
+
+        controller_settings.loop_hertz = 1.0 / period;
       }
       else
         print_usage (argv[0]);
@@ -356,7 +392,12 @@ int main (int argc, char ** argv)
 {
   settings.type = madara::transport::MULTICAST;
   settings.queue_length = 10000000;
- 
+
+  controller_settings.loop_hertz = GAMS_RUN_HZ;
+  controller_settings.send_hertz = GAMS_SEND_HZ;
+  controller_settings.run_time = -1;
+
+
   // handle all user arguments
   handle_arguments (argc, argv);
 
@@ -394,7 +435,7 @@ int main (int argc, char ** argv)
     gams::loggers::global_logger->set_level (gams_debug_level);
   }
 
-  controllers::BaseController controller (knowledge);
+  controllers::BaseController controller (knowledge, controller_settings);
   madara::threads::Threader threader (knowledge);
 
   // initialize variables and function stubs
@@ -545,7 +586,8 @@ int main (int argc, char ** argv)
    **/
   
   // run a mape loop for algorithm and platform control
-  controller.run_hz (GAMS_RUN_HZ, loop_time, GAMS_SEND_HZ);
+  // controller.run_hz (GAMS_RUN_HZ, loop_time, GAMS_SEND_HZ);
+  controller.run ();
 
   // terminate all threads after the controller
   threader.terminate ();
