@@ -73,7 +73,7 @@ threads::PID::run (void)
       std::vector <double> source (
         containers_.self.agent.source.to_record ().to_doubles ());
       std::vector <double> local_state (
-        containers_.self.agent.source.to_record ().to_doubles ());
+        containers_.local_state.to_record ().to_doubles ());
 
       x_dest = dest[0] - home[0];
       y_dest = dest[1] - home[1];
