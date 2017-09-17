@@ -161,19 +161,10 @@ platforms::boat::home (void)
    * return that we are in the process of moving to the final pose.
    **/
 
-  // Should set the dest to home point instead?
-  self_->agent.dest.set(0, self_->agent.dest[0]);
-  self_->agent.dest.set(1, self_->agent.dest[1]);
+  gams::pose::Position home_location (get_frame ());
+  home_location.from_container (self_->agent.home);
 
-  /*
-  self_->agent.dest.set(0, self_->agent.home[0]);
-  self_->agent.dest.set(1, self_->agent.home[1]);
-  */
-
-  self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
-  self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
-
-  return gams::platforms::PLATFORM_IN_PROGRESS;
+  return move (home_location, get_accuracy ());
 }
 
 
@@ -219,13 +210,6 @@ platforms::boat::move (
   // If given a new destination, reset dest and source
   if (std::abs(easting - self_->agent.dest[0]) > 0.00001 || std::abs(northing - self_->agent.dest[1]) > 0.00001)
   {
-    /*
-    // update source to prior destination - Should this be set to current location?
-    self_->agent.source.set(0, self_->agent.dest[0]);
-    self_->agent.source.set(1, self_->agent.dest[1]);
-    */
-    //printf("move called with new location, updating source and dest\n");
-    
     // update source to current location
     self_->agent.source.set(0, containers_.eastingNorthingHeading[0]);
     self_->agent.source.set(1, containers_.eastingNorthingHeading[1]);
